@@ -9,8 +9,11 @@ services:
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
-            - '${APP_PORT:-80}:80'
-            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+            # Puerto original para la aplicación (conflicto con XAMPP)
+            # - '${APP_PORT:-80}:80'   
+            # - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+            - 8080:80   # Puerto alternativo para evitar conflicto
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}' # Mantener el puerto Vite
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
@@ -30,7 +33,9 @@ services:
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
-            - '${FORWARD_DB_PORT:-3306}:3306'
+            # Puerto original para MySQL (conflicto con XAMPP)
+            # - '${FORWARD_DB_PORT:-3306}:3306'
+            - '3307:3306'  # Puerto alternativo para evitar conflicto
         environment:
             MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
             MYSQL_ROOT_HOST: '%'
