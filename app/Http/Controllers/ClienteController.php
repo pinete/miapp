@@ -15,11 +15,6 @@ class ClienteController extends Controller
      */
     public function index()
     {
-        /* Opción inicial: obtener todos los clientes y pasarlos a la vista
-        $clientes = Cliente::all();
-        return view('clientes.index', compact('clientes'));
-        */
-
         // Opción con DataTables: la vista se carga vacía y los datos se obtienen vía AJAX.
         // si estás usando DataTables con AJAX, no necesitas pasar $clientes a la vista.
         // De hecho, eso puede causar conflictos si la vista espera que los datos lleguen por AJAX. (ver index.blade.php)
@@ -93,10 +88,23 @@ class ClienteController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        /* Método básico sin validación ni respuesta JSON
         $cliente = Cliente::findOrFail($id); // Recupera el cliente desde la base de datos
         $cliente->update($request->all()); // Actualiza el cliente con los datos del formulario
         return redirect()->route('clientes.index'); // Redirige a la lista de clientes
+        */
 
+        // Método con validación y respuesta JSON para peticiones AJAX
+        $cliente = Cliente::findOrFail($id);
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'email' => 'required|email|unique:clientes,email,' . $id,
+            'telefono' => 'nullable|string|max:20',
+        ]);
+
+        $cliente->update($validated);
+
+        return response()->json(['success' => true]);
     }
 
     /**
@@ -126,8 +134,6 @@ class ClienteController extends Controller
         return DataTables::eloquent($clientes)
             // addColumn añade una columna de acciones con un botón de editar
             ->addColumn('action', function ($cliente) {
-                // return '<a href="/clientes/'.$cliente->id.'/edit" class="inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 transition">Editar</a>'; // Enlace a la ruta de edición. Anterior versión de botón
-                // return '<button data-id="'.$cliente->id.'" class="btn-editar inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 transition">Editar</button>';  // Usamos un botón con data-id para manejarlo con JavaScript y abrir el modal
                 return //Agrega dos botones: Editar y Eliminar
                     '<button data-id="'.$cliente->id.'" class="btn-editar inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 transition mr-2">Editar</button>' .
                     '<button data-id="'.$cliente->id.'" class="btn-eliminar inline-block px-3 py-1 text-sm font-semibold text-white bg-red-600 rounded hover:bg-red-700 transition">Eliminar</button>';
