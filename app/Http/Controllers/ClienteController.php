@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Cliente;
-use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Http\Request; // Request se usa para manejar las peticiones HTTP
+use Illuminate\Validation\ValidationException; // ValidationException se usa para manejar errores de validación
+use App\Models\Cliente; // Modelo Cliente
+use Yajra\DataTables\Facades\DataTables; // DataTables se usa para manejar tablas con paginación, búsqueda y ordenación
 
 
 class ClienteController extends Controller
@@ -36,12 +37,44 @@ class ClienteController extends Controller
     /**
      * Guarda un nuevo cliente en la base de datos.
      * @param Request $request
+     * @return \Illuminate\Http\Response
+     * Esta función maneja tanto peticiones normales como AJAX.
+     * El código para peticiones normales está comentado.
+     * Para peticiones normales, redirige a la lista de clientes.
+     *
+     * Para peticiones AJAX, devuelve una respuesta JSON.
+     * Usa validación para asegurar que los datos son correctos antes de guardar.
+     * Maneja errores de validación y devuelve mensajes apropiados.
      */
     public function store(Request $request)
     {
+        /*
+        //Método básico sin validación ni respuesta JSON
         Cliente::create($request->all());
         return redirect()->route('clientes.index');
+        */
 
+        //Método con validación y respuesta JSON para peticiones AJAX
+        try {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'email' => 'required|email|unique:clientes,email',
+            'telefono' => 'nullable|string|max:20',
+        ]);
+
+        Cliente::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'mensaje' => 'Cliente creado correctamente'
+        ]);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'mensaje' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        }
     }
 
 
@@ -89,22 +122,26 @@ class ClienteController extends Controller
     public function update(Request $request, string $id)
     {
         /* Método básico sin validación ni respuesta JSON
+        /* Método básico sin validación ni respuesta JSON
         $cliente = Cliente::findOrFail($id); // Recupera el cliente desde la base de datos
         $cliente->update($request->all()); // Actualiza el cliente con los datos del formulario
         return redirect()->route('clientes.index'); // Redirige a la lista de clientes
         */
 
         // Método con validación y respuesta JSON para peticiones AJAX
-        $cliente = Cliente::findOrFail($id);
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
             'email' => 'required|email|unique:clientes,email,' . $id,
             'telefono' => 'nullable|string|max:20',
         ]);
 
+        $cliente = Cliente::findOrFail($id);
         $cliente->update($validated);
 
-        return response()->json(['success' => true]);
+        return response()->json([
+            'success' => true,
+            'mensaje' => 'Cliente actualizado correctamente'
+        ]);
     }
 
     /**

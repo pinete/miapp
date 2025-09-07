@@ -1,7 +1,6 @@
 @extends('layouts.app')
 @section('content')
 
-
 <!-- Usamos TailWind para mostrar datos en tabla -->
 
 <div class="flex justify-between items-center mb-4">
@@ -9,7 +8,9 @@
     <h1 class="text-3xl font-bold text-blue-600">Listado de Clientes</h1>
     {{-- Botón para crear un nuevo cliente --}}
     <button id="btn-crear" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700" data-mode="crear">
+    <button id="btn-crear" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700" data-mode="crear">
         + Nuevo Cliente
+    </button>
     </button>
 </div>
 
@@ -40,9 +41,21 @@
                     --}}
 
             {{-- @method('PUT') --}} {{-- Ya no es necesario aquí, lo manejamos en JS (ver "//Envío de formularios de creación y edición") --}}
+        <form id="form-editar" data-mode="editar" method="POST">
+            @csrf   {{-- Cuando usas @crfs dentro de un formulario Blade, Laravel genera automáticamente un campo oculto como este:
+                        <input type="hidden" name="_token" value="TOKEN_GENERADO">
+                        Ese token es único para cada sesión de usuario y Laravel lo verifica en cada petición POST, PUT, PACH o DELETE.
+                        Si el token no está presente o es incorrecto, Laravel rechaza la petición por considerarla potencialmente maliciosa.
+                        Sirve para proteger tus formularios contra ataques CSRF (Cross-Site Request Forgery) o “falsificación de petición
+                        en sitios cruzados”
+                    --}}
+
+            {{-- @method('PUT') --}} {{-- Ya no es necesario aquí, lo manejamos en JS (ver "//Envío de formularios de creación y edición") --}}
             <input type="hidden" id="modal-id" name="id">
 
             <div class="mb-4">
+                <label for="editar-nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+                <input type="text" id="editar-nombre" name="nombre" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                 <label for="editar-nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
                 <input type="text" id="editar-nombre" name="nombre" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
             </div>
@@ -50,20 +63,26 @@
             <div class="mb-4">
                 <label for="editar-email" class="block text-sm font-medium text-gray-700">Email</label>
                 <input type="email" id="editar-email" name="email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                <label for="editar-email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" id="editar-email" name="email" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
             </div>
 
             <div class="mb-4">
+                <label for="editar-telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
+                <input type="text" id="editar-telefono" name="telefono" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                 <label for="editar-telefono" class="block text-sm font-medium text-gray-700">Teléfono</label>
                 <input type="text" id="editar-telefono" name="telefono" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
             </div>
 
             <div class="flex justify-end gap-2">
                 <button type="button" id="btn-cerrar-modal-editar" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancelar</button>
+                <button type="button" id="btn-cerrar-modal-editar" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancelar</button>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Guardar</button>
             </div>
         </form>
 
         <!-- Botón de cierre en la esquina -->
+        <button id="btn-cerrar-modal-editar-icono" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
         <button id="btn-cerrar-modal-editar-icono" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
     </div>
 </div>
@@ -85,7 +104,26 @@
     </form>
 </div>
 
+
+<!-- Modal para alta de cliente -->
+<div id="modal-crear" class="fixed inset-0 bg-gray-800 bg-opacity-30 backdrop-blur-sm flex items-center justify-center z-50 hidden transition-opacity duration-300">
+    <form id="form-crear" method="POST" data-mode="crear" action="{{ route('clientes.store') }}" class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+        @csrf
+        <h2 class="text-xl font-bold mb-4">Nuevo Cliente</h2>
+
+        <input type="text" name="nombre" id="crear-nombre" placeholder="Nombre" class="w-full mb-3 p-2 border rounded">
+        <input type="email" name="email" id="crear-email" placeholder="Email" class="w-full mb-3 p-2 border rounded">
+        <input type="text" name="telefono" id="crear-telefono" placeholder="Teléfono" class="w-full mb-3 p-2 border rounded">
+
+        <div class="flex justify-end gap-2 mt-4">
+            <button type="button" id="btn-cerrar-modal-crear" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Cancelar</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Guardar</button>
+        </div>
+    </form>
+</div>
+
 @endsection
+
 
 
 @section('scripts')
@@ -93,13 +131,18 @@
 // Inicialización de DataTables con procesamiento del lado del servidor
 $(document).ready(function () {
     const tabla = $('#clientes-table').DataTable({
+$(document).ready(function () {
+    const tabla = $('#clientes-table').DataTable({
         processing: true,
         serverSide: true,
+        ajax: {
         ajax: {
             url: "{{ route('clientes.data') }}",
             type: 'GET',
             dataSrc: function (json) {
+            dataSrc: function (json) {
                 console.log('Respuesta JSON:', json);
+                return json.data;
                 return json.data;
             }
         },
@@ -109,6 +152,7 @@ $(document).ready(function () {
             { data: 'email', name: 'email' },
             { data: 'telefono', name: 'telefono' },
             {
+            {
                 data: 'action',
                 name: 'action',
                 orderable: false,
@@ -116,12 +160,28 @@ $(document).ready(function () {
             }
         ]
     });
+    });
 
     // Abrir modal de edición y cargar datos del cliente
     $(document).on('click', '.btn-editar', function (e) {
         e.preventDefault();
         const id = $(this).data('id');
+    // Abrir modal de edición y cargar datos del cliente
+    $(document).on('click', '.btn-editar', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
 
+        $.get(`/clientes/${id}/json`, function (data) {
+            $('#modal-id').val(data.id);
+            $('#editar-nombre').val(data.nombre);
+            $('#editar-email').val(data.email);
+            $('#editar-telefono').val(data.telefono);
+            $('#form-editar').attr('action', `/clientes/${data.id}`);
+            $('#modal-editar')
+                .removeClass('hidden opacity-0')
+                .addClass('opacity-100 transition-opacity duration-600');
+        });
+    });
         $.get(`/clientes/${id}/json`, function (data) {
             $('#modal-id').val(data.id);
             $('#editar-nombre').val(data.nombre);
@@ -152,12 +212,36 @@ $(document).ready(function () {
         $('#modal-crear').removeClass('opacity-100').addClass('opacity-0');
         setTimeout(() => $('#modal-crear').addClass('hidden'), 300);
     });
+    // Abrir modal de creación
+    $('#btn-crear').on('click', function () {
+        $('#crear-nombre, #crear-email, #crear-telefono').val('');
+        $('#modal-crear')
+            .removeClass('hidden opacity-0')
+            .addClass('opacity-100 transition-opacity duration-600');
+    });
+
+    // Cerrar modales
+    $('#btn-cerrar-modal-editar').on('click', function () {
+        $('#modal-editar').removeClass('opacity-100').addClass('opacity-0');
+        setTimeout(() => $('#modal-editar').addClass('hidden'), 300);
+    });
+
+    $('#btn-cerrar-modal-crear').on('click', function () {
+        $('#modal-crear').removeClass('opacity-100').addClass('opacity-0');
+        setTimeout(() => $('#modal-crear').addClass('hidden'), 300);
+    });
 
     // Manejo del botón de eliminación de un cliente
     $(document).on('click', '.btn-eliminar', function (e) {
         e.preventDefault();
         const id = $(this).data('id');
+    // Manejo del botón de eliminación de un cliente
+    $(document).on('click', '.btn-eliminar', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
 
+        // Confirmación antes de eliminar sin usar SweetAlert
+        /*
         if (confirm('¿Estás seguro de que deseas eliminar este cliente?')) {
             $.ajax({
                 url: `/clientes/${id}`,
@@ -174,6 +258,28 @@ $(document).ready(function () {
                 }
             });
         }
+        */
+        // Confirmación antes de eliminar usando SweetAlert
+        mostrarAlerta({
+        nombreObjeto: 'cliente',
+        texto: '¿Deseas eliminar este cliente?. Esta acción no se puede deshacer.',
+        tipo: 'warning'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: `/clientes/${id}`,
+                type: 'DELETE',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function () {
+                    tabla.ajax.reload();
+                    mostrarNotificacion({ mensaje: 'Cliente eliminado correctamente', tipo: 'success' });
+                },
+                error: manejarErrorAJAX
+            });
+        }
+    });
+
+
     });
 
     // Envío de formularios de creación y edición
@@ -200,14 +306,17 @@ Sustituye la línea comentada en el modal que usaba @method('PUT') en el formula
             url: url,
             method: method,
             data: data,
+            /*
+            // Opcional: Método anterior. Notificación visual sin usar mostrarNotificacion() ni manejarErrorAJAX()
             success: function () {
+
                 const modalId = mode === 'editar' ? '#modal-editar' : '#modal-crear';
                 $(modalId).removeClass('opacity-100').addClass('opacity-0');
                 setTimeout(() => $(modalId).addClass('hidden'), 300);
 
                 tabla.ajax.reload();
 
-                // Opcional: notificación visual
+
                 if (typeof Swal !== 'undefined') {
                     Swal.fire({
                         icon: 'success',
@@ -219,8 +328,7 @@ Sustituye la línea comentada en el modal que usaba @method('PUT') en el formula
                 } else {
                     alert('Operación realizada correctamente');
                 }
-            },
-            error: function (xhr) {
+                    error: function (xhr) {
                 const errors = xhr.responseJSON?.errors;
                 let mensaje = 'Error al guardar el cliente';
                 if (errors) {
@@ -239,10 +347,36 @@ Sustituye la línea comentada en el modal que usaba @method('PUT') en el formula
                     alert(mensaje);
                 }
             }
+        */
+
+            //Nuevo método opcional de notificación: Usando las funciones de notificación y manejo de errores
+            success: function (response) {
+                const modalId = mode === 'editar' ? '#modal-editar' : '#modal-crear';
+                $(modalId).removeClass('opacity-100').addClass('opacity-0');
+                setTimeout(() => $(modalId).addClass('hidden'), 300);
+
+                tabla.ajax.reload();
+                mostrarNotificacion({ mensaje: response.mensaje, tipo: 'success' });
+            },
+            error: manejarErrorAJAX
+            /*  ¿manejarErrorAJAX no es una función? Por qué no la llamamos con parentesis?
+                Porque la pasamos como referencia. jQuery la llamará automáticamente cuando ocurra un error en la petición AJAX,
+                pasandole los argumentos esperados (jqXHR, textStatus y errorThrow).
+                Si usamos paréntesis (manejarErrorAJAX()), la función se ejecutaría inmediatamente y no cuando ocurra el error.
+
+                ¿Y si se necesita lógica adicional?
+                Si quisieras hacer algo más antes o después de llamar a manejarErrorAJAX, entonces sí usarías una función anónima:
+                error:  function (jqXHR, textStatus, errorThrown) {
+                            console.log('Error detectado');
+                            manejarErrorAJAX(jqXHR, textStatus, errorThrown);
+                }
+                Pero si manejarErrorAJAX ya hace todo lo que se necesita, podemos pasarla directamente como referencia
+            */
         });
     });
 });
 </script>
 @endsection
+
 
 
