@@ -7,8 +7,8 @@
     {{-- Título --}}
     <h1 class="text-3xl font-bold text-blue-600">Listado de Clientes</h1>
     {{-- Botón para crear un nuevo cliente --}}
-    <button id="btn-crear" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700" data-mode="crear">
-        + Nuevo Cliente
+    <button id="btn-crear" title="Nuevo registro" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transform transition duration-100 ease-in-out mr-2 cursor-pointer" data-mode="crear">
+        <img src="/icons/CRUD/Agregar-Icono.png" alt="Editar" class="w-6 h-6 inline">
     </button>
 </div>
 
@@ -58,8 +58,9 @@
             </div>
 
             <div class="flex justify-end gap-2">
-                <button type="button" id="btn-cerrar-modal-editar" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancelar</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Guardar</button>
+                {{--<button type="button" id="btn-cerrar-modal-editar" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancelar</button>--}}
+                <button type="button" id="btn-cerrar-modal-editar" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer">Cancelar</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer">Guardar</button>
             </div>
         </form>
 
@@ -79,8 +80,8 @@
         <input type="text" name="telefono" id="crear-telefono" placeholder="Teléfono" class="w-full mb-3 p-2 border rounded">
 
         <div class="flex justify-end gap-2 mt-4">
-            <button type="button" id="btn-cerrar-modal-crear" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Cancelar</button>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Guardar</button>
+            <button type="button" id="btn-cerrar-modal-crear" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer">Cancelar</button>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer">Guardar</button>
         </div>
     </form>
 </div>
