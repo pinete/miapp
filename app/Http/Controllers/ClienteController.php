@@ -20,6 +20,8 @@ class ClienteController extends Controller
         // si estás usando DataTables con AJAX, no necesitas pasar $clientes a la vista.
         // De hecho, eso puede causar conflictos si la vista espera que los datos lleguen por AJAX. (ver index.blade.php)
 
+        //dd('Entró en controlador index');
+
         return view('clientes.index');
     }
 
@@ -30,6 +32,8 @@ class ClienteController extends Controller
      */
     public function create()
     {
+        //dd('Entró en el controlador create');
+
         return view('clientes.create');
     }
 
@@ -55,6 +59,10 @@ class ClienteController extends Controller
         */
 
         //Método con validación y respuesta JSON para peticiones AJAX
+
+        //dd($request->method(), $request->all());
+        //dd('Entró en el controlador store');
+
         try {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
@@ -85,6 +93,7 @@ class ClienteController extends Controller
      */
     public function show(string $id)
     {
+        dd('entró en el controlador show');
         return view('clientes.show', compact('cliente'));
     }
 
@@ -97,6 +106,7 @@ class ClienteController extends Controller
      */
     public function showJson($id)
     {
+        //dd('entró en el controlador showJson');
         $cliente = Cliente::findOrFail($id);
         return response()->json($cliente); //Así puedes hacer una petición AJAX y rellenar el modal sin salir de la vista.
     }
@@ -109,7 +119,8 @@ class ClienteController extends Controller
      */
     public function edit(string $id)
     {
-         $cliente = Cliente::findOrFail($id); //  Recupera el cliente desde la base de datos antes de enviarlo a la vista.
+        //dd('entró en el controlador edit');
+        $cliente = Cliente::findOrFail($id); //  Recupera el cliente desde la base de datos antes de enviarlo a la vista.
         return view('clientes.edit', compact('cliente')); // Pasa el cliente a la vista
     }
 
@@ -128,6 +139,8 @@ class ClienteController extends Controller
         return redirect()->route('clientes.index'); // Redirige a la lista de clientes
         */
 
+        //dd($request->method(), $request->all());
+        //dd('entró en el controlador update');
         // Método con validación y respuesta JSON para peticiones AJAX
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
@@ -137,6 +150,7 @@ class ClienteController extends Controller
 
         $cliente = Cliente::findOrFail($id);
         $cliente->update($validated);
+
 
         return response()->json([
             'success' => true,
@@ -151,6 +165,7 @@ class ClienteController extends Controller
      */
     public function destroy(string $id)
     {
+        //dd('entró en el controlador destroy');
         $cliente = Cliente::findOrFail($id); // Recupera el cliente desde la base de datos
         $cliente->delete(); // Elimina el cliente de la base de datos
         //return redirect()->route('clientes.index'); // Redirige a la lista de clientes
@@ -165,6 +180,7 @@ class ClienteController extends Controller
      */
     public function getClientes()
     {
+        //dd('entró en el controlador getClientes');
         $clientes = Cliente::query(); // Consulta base para obtener los clientes
 
         //Eloquent DataTables permite manipular los datos antes de enviarlos a DataTables vía AJAX.

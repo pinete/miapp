@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     --}}
     @vite(['resources/css/app.css', 'resources/js/app.js']) {{-- Laravel moderno: usa Vite --}}
+
     <!-- CSS de DataTables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 </head>
