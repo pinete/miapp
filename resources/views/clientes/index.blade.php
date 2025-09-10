@@ -1,31 +1,8 @@
 @extends('layouts.app')
 @section('content')
 
-{{--  Opción inicial para mostrar datos en tabla y acciones CRUD
-<h1 class="text-3xl font-bold text-blue-600">Listado de Clientes</h1>
-<a href="{{ route('clientes.create') }}">Nuevo Cliente</a>
-<table>
-    <tr><th>Nombre</th><th>Email</th><th>Teléfono</th><th>Acciones</th></tr>
-    @foreach($clientes as $cliente)
-    <tr>
-        <td>{{ $cliente->nombre }}</td>
-        <td>{{ $cliente->email }}</td>
-        <td>{{ $cliente->telefono }}</td>
-        <td>
-            <a href="{{ route('clientes.edit', $cliente->id) }}">Editar</a>
-            <form action="{{ route('clientes.destroy', $cliente->id) }}" method="POST" style="display:inline;">
-                @csrf
-                @method('DELETE')
-                <button type="submit">Eliminar</button>
-            </form>
-        </td>
-    </tr>
-    @endforeach
-</table>
---}}
 
-
-<!-- Opción 2 usando TailWind para mostrar datos en tabla -->
+<!-- Usamos TailWind para mostrar datos en tabla -->
 
 <div class="flex justify-between items-center mb-4">
     {{-- Título --}}
@@ -125,34 +102,30 @@ $(document).on('click', '.btn-editar', function(e) {
     e.preventDefault();
     const id = $(this).data('id');
 
-    $.get(`/clientes/${id}/json`, function(data) {
+    $.get(`/clientes/${id}/json`, function(data) { // Ruta para obtener datos del cliente en formato JSON
         $('#modal-id').val(data.id);
         $('#modal-nombre').val(data.nombre);
         $('#modal-email').val(data.email);
         $('#modal-telefono').val(data.telefono);
-        $('#form-editar').attr('action', `/clientes/${data.id}`);
-        //$('#modal-editar').removeClass('hidden').addClass('opacity-100');
-         // Mostrar el modal con transición
+        $('#form-editar').attr('action', `/clientes/${data.id}`); // Actualiza la acción del formulario
         $('#modal-editar')
-            .removeClass('hidden opacity-0')
-            .addClass('opacity-100 transition-opacity duration-600');
+            .removeClass('hidden opacity-0') // Asegura que el modal no esté oculto y sin opacidad
+            .addClass('opacity-100 transition-opacity duration-600'); // Muestra el modal con transición
     });
 });
 
-$('#cerrar-modal, #cerrar-modal-icono').on('click', function() {
+$('#cerrar-modal, #cerrar-modal-icono').on('click', function() { // Cierra el modal
     $('#modal-editar')
         .removeClass('opacity-100')
         .addClass('opacity-0');
-
     // Espera a que termine la transición antes de ocultar
     setTimeout(() => {
         $('#modal-editar').addClass('hidden');
     }, 300); // debe coincidir con duration-300
 });
 
-
 // Manejo del botón de eliminación de un cliente
-$(document).on('click', '.btn-eliminar', function(e) {
+$(document).on('click', '.btn-eliminar', function(e) { // Botón de eliminar
     e.preventDefault();
     const id = $(this).data('id');
 
