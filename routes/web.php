@@ -1,6 +1,7 @@
 <?php
 //use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClienteController;
+use App\DataTables\ClientesDataTable;
 
 // Rutas básicas de Laravel. Pagina de bienvenida. Activa la vista resources/views/welcome.blade.php
 Route::get('/', function () {
@@ -30,4 +31,6 @@ Route::put('/clientes/{id}', [ClienteController::class, 'update'])->name('client
 Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('clientes.destroy'); // Ruta para eliminar un cliente
 Route::get('/clientes/create', [ClienteController::class, 'create'])->name('clientes.create'); // Ruta para mostrar el formulario de creación
 Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store'); // Ruta para guardar un nuevo cliente
+
+Route::get('/clientesdt', [ClientesDataTable::class, 'index'])->name('clientes.index'); // Ruta para listar por controlador ClientesDataTable
 

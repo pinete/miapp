@@ -5,7 +5,7 @@
 import Swal from 'sweetalert2';
 
 
-/** Función para mostrar alertas de confirmación
+/** Mostrar alertas de confirmación
  *
  *@param {Object} options
  *@param {string} options.titulo - Título Titulo que encabeza el aviso. Por defecto es 'Confirmar acción'
@@ -14,9 +14,9 @@ import Swal from 'sweetalert2';
  *@param {string} options.txtConfirmar - Texto del botón de confirmación. Por defecto es 'Aceptar'
  *@param {string} options.txtCancelar - Texto del botón de cancelación. Por defecto es 'Cancelar'
  *@param {boolean} options.mostrarBtnCancelar - Indica si se debe mostrar el botón de cancelar (verdadero o falso). Por defecto es true
- *@returns {Promise} - Promise que se resuelve con el resultado de la alerta. 
+ *@returns {Promise} - Promise que se resuelve con el resultado de la alerta.
  */
-function mostrarAlerta({
+export function mostrarAlerta({
     titulo = 'Confirmar acción',
     texto = '',
     tipo = 'warning',
@@ -59,7 +59,11 @@ function mostrarAlerta({
  * @param {number} options.duracion - Duración en milisegundos que la notificación estará visible
  * @return {void}
  */
-function mostrarNotificacion({ mensaje = '', tipo = 'success', duracion = 3000 }) {
+export function mostrarNotificacion({
+    mensaje = '',
+    tipo = 'success',
+    duracion = 3000
+}) {
     const Toast = Swal.mixin({
         toast: true,
         position: 'top-end',
@@ -83,14 +87,14 @@ function mostrarNotificacion({ mensaje = '', tipo = 'success', duracion = 3000 }
 // mostrarNotificacion({ mensaje: 'Error al crear el cliente', tipo: 'error' });
 // *********************************************************************************************************
 
-/** Función para manejar errores de AJAX
+/** Manejo errores de AJAX
  *
  * @param {*} jqXHR // Objeto jqXHR de la llamada AJAX. Se usa para obtener el código de estado HTTP
  * @param {*} textStatus // Estado textual de la llamada AJAX (timeout, error, abort, parsererror)
  * @param {*} errorThrown // Texto del error lanzado (opcional)
  * @returns {void}
  */
-function manejarErrorAJAX(jqXHR, textStatus, errorThrown) {
+export function manejarErrorAJAX(jqXHR, textStatus, errorThrown) {
     let mensajeError = 'Ocurrió un error inesperado.';
         if (jqXHR.status === 422 && jqXHR.responseJSON?.errors) {
         mensajeError = Object.entries(jqXHR.responseJSON.errors)
@@ -137,12 +141,12 @@ function manejarErrorAJAX(jqXHR, textStatus, errorThrown) {
 // });
 // *********************************************************************************************************
 
-/**  Función para validar formularios (puedes expandirla según tus necesidades)
+/**  Validación básica de formularios (puedes expandirla según tus necesidades)
  *
  * @param {*} form - jQuery object del formulario a validar
  * @returns {boolean} - true si el formulario es válido, false si hay errores
  */
-function validarFormulario(form) {
+export function validarFormulario(form) {
     let esValido = true;
     form.find('input[required], select[required], textarea[required]').each(function() {
         if (!$(this).val()) {
@@ -164,9 +168,4 @@ function validarFormulario(form) {
 // }
 // *********************************************************************************************************
 
-
-// ✅ Exponer funciones al navegador (para que Vite las reconozca globalmente)
-window.mostrarAlerta = mostrarAlerta;
-window.mostrarNotificacion = mostrarNotificacion;
-window.manejarErrorAJAX = manejarErrorAJAX;
-window.validarFormulario = validarFormulario;
+// Debemos añadir estas funciones a resources/js/app.js para que Vite las reconozca

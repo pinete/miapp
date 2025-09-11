@@ -23,6 +23,8 @@ class ClienteController extends Controller
         //dd('Entró en controlador index');
 
         return view('clientes.index');
+
+
     }
 
 
