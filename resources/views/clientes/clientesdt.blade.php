@@ -12,7 +12,8 @@
     </button>
 </div>
 
-{!! $dataTable->table(['id' => 'clientes-table','class' => 'table table-bordered'], true) !!}
+{!! $dataTable->table(['id' => 'clientes-table','class' => 'table table-bordered table-striped'], true) !!}
+{!! $dataTable->scripts() !!}
 
 <!-- Modal de edición Cliente-->
 <div id="modal-editar" class="fixed inset-0 bg-gray-800 bg-opacity- backdrop-blur-sm flex items-center justify-center z-50 hidden transition-opacity duration-600">
@@ -70,16 +71,20 @@
 @endsection
 
 @section('scripts')
-
-{!! $dataTable->scripts() !!}
 <script>
-// Inicialización de DataTables con procesamiento del lado del servidor
 
 $(document).ready(function () {
+    // Verifica si la variable tabla ya existe y si no la carga en global
+    if (typeof window.tabla === 'undefined') {
+        window.tabla = $('#clientes-table').DataTable();
+
+        // Cargamos los botones de exportación
+        // $('#clientes-table').DataTable().buttons().container().appendTo('#clientes-table_wrapper .col-md-6:eq(0)');
+        window.tabla.buttons().container().appendTo('#clientes-table_wrapper .col-md-6:eq(0)');
+    }
 
     // Abrir modal de edición y cargar datos del cliente
     $(document).on('click', '.btn-editar', function (e) {
-
         e.preventDefault();
         console.log('Script de btn-editar -  Abrir modal de edición y cargar datos del cliente')
         const id = $(this).data('id');
@@ -94,8 +99,7 @@ $(document).ready(function () {
                 .removeClass('hidden opacity-0')
                 .addClass('opacity-100 transition-opacity duration-600');
         });
-    }); // Cierre de btn-editar
-
+    }); // Fin de btn-editar
 
     // Abrir modal de creación
     $('#btn-crear').on('click', function () {
@@ -104,21 +108,21 @@ $(document).ready(function () {
         $('#modal-crear')
             .removeClass('hidden opacity-0')
             .addClass('opacity-100 transition-opacity duration-600');
-    }); // Cierre btn-crear
+    }); // Fin btn-crear
 
     // Cerrar modal de edición
     $('#btn-cerrar-modal-editar').on('click', function () {
         console.log('script btn-cerrar-modal-editar de Cerrar Modales')
         $('#modal-editar').removeClass('opacity-100').addClass('opacity-0');
         setTimeout(() => $('#modal-editar').addClass('hidden'), 300);
-    }); // Cierre btn-cerrar-modal-editar
+    }); // Fin btn-cerrar-modal-editar
 
     // Cerrar modal de creación
     $('#btn-cerrar-modal-crear').on('click', function () {
          console.log('Script btn-cerrar-modal-crear de Cerrar Modales')
         $('#modal-crear').removeClass('opacity-100').addClass('opacity-0');
         setTimeout(() => $('#modal-crear').addClass('hidden'), 300);
-    }); // Cierre btn-cerrar-modal-crear
+    }); // Fin btn-cerrar-modal-crear
 
     // Manejo del botón de eliminación de un cliente
     $(document).on('click', '.btn-eliminar', function (e) {
@@ -144,8 +148,8 @@ $(document).ready(function () {
                     error: manejarErrorAJAX
                 });
             }
-        }); // Cerramos mostrarAlerta
-    }) // Cierre de $(document).on('click', '.btn-eliminar', ...
+        }); // Fin mostrarAlerta
+    }) // Fin de $(document).on('click', '.btn-eliminar', ...
 
     // Envío de formularios de creación y edición
     $('form[data-mode]').on('submit', function (e) {
@@ -182,11 +186,8 @@ $(document).ready(function () {
             },
             error: manejarErrorAJAX
 
-        }); // Cierre de AJAX
-    }); // Cierre de form[data-mode]
-}); // Cierre del document.ready
+        }); // Fin de AJAX
+    }); // Fin de form[data-mode]
+}); // Fin del document.ready
 </script>
 @endsection
-
-
-

@@ -64,6 +64,7 @@ export function mostrarNotificacion({
     tipo = 'success',
     duracion = 3000
 }) {
+    console.log('mostrarNotificacion ejecutado con:', mensaje, tipo);
     const Toast = Swal.mixin({
         toast: true,
         position: 'top-end',

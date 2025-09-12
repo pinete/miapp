@@ -57,20 +57,57 @@ class ClientesDataTable extends DataTable
      */
     public function html(): HtmlBuilder
     {
+        $tailwindStyle='inline-block
+                        px-4 py-2
+                        text-sm font-semibold text-white
+                        bg-gray-600 rounded
+                        hover:bg-gray-700
+                        active:scale-95
+                        transform transition
+                        duration-100 ease-in-out';
+
         return $this->builder()
-                    ->setTableId('users-table')
+                    ->setTableId('clientes-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
                     ->orderBy(1)
                     ->selectStyleSingle()
+                    ->dom('Bfrtip') // B = Buttons, f = filter, r = processing, t = table, p = pagination
                     ->buttons([
-                        Button::make('excel'),
-                        Button::make('csv'),
-                        Button::make('pdf'),
-                        Button::make('print'),
-                        Button::make('reset'),
-                        Button::make('reload')
+                        Button::make('excel')
+                            ->text('Excel')
+                            ->className ($tailwindStyle),
+
+                        Button::make('csv')
+                            ->text('CSV')
+                            ->className ($tailwindStyle),
+
+                        Button::make('pdf')
+                            ->text('PDF')
+                            ->className ($tailwindStyle),
+
+                        Button::make('print')
+                            ->text('Imprimir')
+                            ->className ($tailwindStyle),
                     ]);
+                    /***** PARA LA ULTIMA VERSIÓN SE HACE ASÍ ***** PERO AQUI NO FUNCIONA
+                    ->parameters([
+                        // Necesario para establecer el orden
+                        'layout' => 'Bfrtip', // B = Botones, f = filtro, r = info, t = tabla, p = paginación
+                        // Botones de exportación
+                        'buttons' => [
+                            ['extend' => 'excel', 'text' => 'Excel', 'className' => 'inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-md'],
+                            ['extend' => 'csv',   'text' => 'CSV',   'className' => 'inline-flex items-center px-4 py-2 bg-blue-500 text-white rounded-md'],
+                            ['extend' => 'pdf',   'text' => 'PDF',   'className' => 'inline-flex items-center px-4 py-2 bg-red-500 text-white rounded-md'],
+                            ['extend' => 'print', 'text' => 'Imprimir', 'className' => 'inline-flex items-center px-4 py-2 bg-gray-700 text-white rounded-md'],
+                        ],
+                        // (Opcional) traducciones al español
+                        'language' => [
+                            'url' => 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                        ],
+                    ]);*/
+
+
     }
 
     /**
