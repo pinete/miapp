@@ -6,6 +6,7 @@ use Illuminate\Http\Request; // Request se usa para manejar las peticiones HTTP
 use Illuminate\Validation\ValidationException; // ValidationException se usa para manejar errores de validación
 use App\Models\Cliente; // Modelo Cliente
 use Yajra\DataTables\Facades\DataTables; // DataTables se usa para manejar tablas con paginación, búsqueda y ordenación
+use App\DataTables\ClientesDataTable;
 
 
 class ClienteController extends Controller
@@ -14,18 +15,12 @@ class ClienteController extends Controller
      * Muestra la lista de clientes.
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(ClientesDataTable $dataTable)
     {
-        // Opción con DataTables: la vista se carga vacía y los datos se obtienen vía AJAX.
-        // si estás usando DataTables con AJAX, no necesitas pasar $clientes a la vista.
-        // De hecho, eso puede causar conflictos si la vista espera que los datos lleguen por AJAX. (ver index.blade.php)
-
-        //dd('Entró en controlador index');
-
-        return view('clientes.index');
-
-
+        return $dataTable->render('clientes.clientes');
     }
+
+
 
 
     /**

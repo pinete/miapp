@@ -32,5 +32,5 @@ Route::delete('/clientes/{id}', [ClienteController::class, 'destroy'])->name('cl
 Route::get('/clientes/create', [ClienteController::class, 'create'])->name('clientes.create'); // Ruta para mostrar el formulario de creación
 Route::post('/clientes', [ClienteController::class, 'store'])->name('clientes.store'); // Ruta para guardar un nuevo cliente
 
-Route::get('/clientesdt', [ClientesDataTable::class, 'index'])->name('clientes.index'); // Ruta para listar por controlador ClientesDataTable
+
 

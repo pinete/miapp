@@ -22,13 +22,6 @@ class ClientesDataTable extends DataTable
      * @param QueryBuilder<Cliente> $query Results from query() method.
      */
 
-    public function index(ClientesDataTable $dataTable)
-    {
-        return $dataTable->render('clientes.clientesdt'); // Asegúrate que 'clientes.clientesdt' es tu vista Blade
-    }
-
-
-
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
