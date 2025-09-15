@@ -118,12 +118,14 @@ class ClientesDataTable extends DataTable
             Column::make('nombre'),
             Column::make('email'),
             Column::make('telefono'),
-            Column::make('created_at'),
-            Column::make('updated_at'),
+            Column::make('created_at')
+                ->title('Creado'),
+            Column::make('updated_at')
+                ->title('Actualizado'),
             Column::computed('action')
                   ->exportable(false)
                   ->printable(false)
-                  ->width(120) // Tamaño minimo (para que no desaparezcan los iconos interiores)
+                  ->width(120) // Tamaño minimo de los botones action (para que no desaparezcan los iconos interiores)
                   ->addClass('text-center'),
         ];
     }

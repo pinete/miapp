@@ -9,9 +9,11 @@
     <a href="{{ url('/') }}" class="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition">
         Inicio
     </a>
-    <a href="{{ route('clientes.index') }}" class="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition">
-        Clientes
-    </a>
+<a href="{{ route('entidad.index', ['entidad' => 'clientes']) }}" class="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition">
+    Clientes
+</a>
+
+
 </nav>
 
 

@@ -172,7 +172,6 @@ $(document).ready(function () {
             console.log('Enviando AJAX con método:', method);
             },
 
-
             //Nuevo método opcional de notificación: Usando las funciones de notificación y manejo de errores
             success: function (response) {
             console.log('Respuesta:', response);

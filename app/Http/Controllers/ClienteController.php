@@ -56,10 +56,6 @@ class ClienteController extends Controller
         */
 
         //Método con validación y respuesta JSON para peticiones AJAX
-
-        //dd($request->method(), $request->all());
-        //dd('Entró en el controlador store');
-
         try {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
