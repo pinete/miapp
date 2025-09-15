@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cliente extends Model
 {
-    protected $fillable = ['nombre', 'email', 'telefono']; // Campos que se pueden asignar masivamente
+protected $fillable = ['nombre', 'email', 'telefono']; // Campos que se pueden asignar masivamente
 }

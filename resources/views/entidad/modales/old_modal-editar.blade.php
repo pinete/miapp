@@ -3,16 +3,10 @@
         <h2 class="text-xl font-bold mb-4">Editar {{ ucfirst($entidad) }}</h2>
         <form id="form-editar" data-mode="editar" method="POST">
             @csrf
-            @foreach ($campos as $campo)
-                @php
-                    $type = Str::contains($campo, 'email') ? 'email' : 'text';
-                @endphp
-                <input type="{{ $type }}"
-                    id="editar-{{ $campo }}"
-                    name="{{ $campo }}"
-                    class="w-full mb-3 p-2 border rounded"
-                    placeholder="{{ ucfirst($campo) }}">
-            @endforeach
+            <input type="hidden" id="modal-id" name="id">
+            <input type="text" id="editar-nombre" name="nombre" class="w-full mb-3 p-2 border rounded" placeholder="Nombre">
+            <input type="email" id="editar-email" name="email" class="w-full mb-3 p-2 border rounded" placeholder="Email">
+            <input type="text" id="editar-telefono" name="telefono" class="w-full mb-3 p-2 border rounded" placeholder="Teléfono">
             <div class="flex justify-end gap-2">
                 <button type="button" id="btn-cerrar-modal-editar" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancelar</button>
                 <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400">Guardar</button>

@@ -97,6 +97,7 @@ class EntidadDataTable extends DataTable
                     Column::make('id'),
                     Column::make('nombre'),
                     Column::make('cif'),
+                    Column::make('email'),
                     Column::make('telefono'),
                     Column::make('created_at')->title('Creado'),
                     Column::make('updated_at')->title('Actualizado'),

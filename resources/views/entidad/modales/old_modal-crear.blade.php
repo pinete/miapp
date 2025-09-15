@@ -2,17 +2,9 @@
     <form id="form-crear" method="POST" data-mode="crear" action="{{ $storeRoute }}" class="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
         @csrf
         <h2 class="text-xl font-bold mb-4">Nuevo {{ ucfirst(Str::singular($entidad)) }}</h2>
-            @foreach ($campos as $campo)
-                @php
-                    $type = Str::contains($campo, 'email') ? 'email' : 'text';
-                @endphp
-                <input type="{{ $type }}"
-                    name="{{ $campo }}"
-                    id="crear-{{ $campo }}"
-                    placeholder="{{ ucfirst($campo) }}"
-                    class="w-full mb-3 p-2 border rounded">
-            @endforeach
-
+        <input type="text" name="nombre" id="crear-nombre" placeholder="Nombre" class="w-full mb-3 p-2 border rounded">
+        <input type="email" name="email" id="crear-email" placeholder="Email" class="w-full mb-3 p-2 border rounded">
+        <input type="text" name="telefono" id="crear-telefono" placeholder="Teléfono" class="w-full mb-3 p-2 border rounded">
         <div class="flex justify-end gap-2 mt-4">
             <button type="button" id="btn-cerrar-modal-crear" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancelar</button>
             <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-400">Guardar</button>
