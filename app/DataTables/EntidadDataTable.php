@@ -14,11 +14,13 @@ class EntidadDataTable extends DataTable
 {
     protected string $modelo;
     protected string $entidad;
+    protected array  $campos;
 
-    public function __construct(string $modelo, string $entidad)
+    public function __construct(string $modelo, string $entidad, array $campos)
     {
-        $this->modelo = ucfirst($modelo);   // Ej: 'Cliente'
-        $this->entidad = strtolower($entidad); // Ej: 'clientes'
+        $this->modelo   = ucfirst($modelo);   // Ej: 'Cliente'
+        $this->entidad  = strtolower($entidad); // Ej: 'clientes'
+        $this->campos   = $campos; // Campos visibles en la tabla
     }
 
     /**
@@ -29,7 +31,6 @@ class EntidadDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->editColumn('created_at', fn($registro) => Carbon::parse($registro->created_at)->format('d/m/Y'))
             ->editColumn('updated_at', fn($registro) => Carbon::parse($registro->updated_at)->format('d/m/Y'))
-            //->addColumn('action', $this->entidad . '.action') // Vista Blade específica por entidad
             ->addColumn('action', 'entidad.action') // Añado los botones en lineas de la vista action.blade.php
             ->setRowId('id');
     }
@@ -76,6 +77,7 @@ class EntidadDataTable extends DataTable
      */
     public function getColumns(): array
     {
+        /*
         // Configuramos las columnas para cada entidad
         switch ($this->entidad) {
             case 'clientes':
@@ -97,6 +99,7 @@ class EntidadDataTable extends DataTable
                     Column::make('id'),
                     Column::make('nombre'),
                     Column::make('cif'),
+                    Column::make('email'),
                     Column::make('telefono'),
                     Column::make('created_at')->title('Creado'),
                     Column::make('updated_at')->title('Actualizado'),
@@ -119,6 +122,23 @@ class EntidadDataTable extends DataTable
                         ->addClass('text-center'),
                 ];
         }
+        */
+        // Genero las columnas dinámicamente según los campos visibles y evito usar switch/case
+        $columnas = [Column::make('id')];
+
+        foreach ($this->campos as $campo) {
+            $columnas[] = Column::make($campo);
+        }
+
+        $columnas[] = Column::make('created_at')->title('Creado');
+        $columnas[] = Column::make('updated_at')->title('Actualizado');
+        $columnas[] = Column::computed('action')
+            ->exportable(false)
+            ->printable(false)
+            ->width(120)
+            ->addClass('text-center');
+
+        return $columnas;
     }
 
     /**

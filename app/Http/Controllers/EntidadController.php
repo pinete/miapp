@@ -4,14 +4,39 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request; // Request se usa para manejar las peticiones HTTP
 use Illuminate\Validation\ValidationException; // ValidationException se usa para manejar errores de validación
-use Illuminate\Support\Str; // Str se usa para manipular cadenas de texto
-//use App\Models\Cliente; // Modelo Cliente
 use Yajra\DataTables\Facades\DataTables; // DataTables se usa para manejar tablas con paginación, búsqueda y ordenación
-//use App\DataTables\EntidadDataTable;
 
 
 class EntidadController extends Controller
 {
+    /**
+    * Devuelve el nombre (singular) del modelo según la entidad.
+    */
+    private function getModelClass(string $entidad): string
+    {
+        $mapa = [
+            'clientes'   => 'Cliente',
+            'proveedores'=> 'Proveedor',
+            'articulos'  => 'Articulo',
+            // aquí tus otras entidades...
+        ];
+        if (! isset($mapa[$entidad])) {
+            abort(404, "Entidad desconocida: $entidad");
+        }
+        return $mapa[$entidad];
+    }
+
+    private function getCamposVisibles(string $entidad): array
+    {
+        return match ($entidad) {
+            'clientes' => ['nombre', 'email', 'telefono'],
+            'proveedores' => ['nombre', 'cif', 'email', 'telefono'],
+            'articulos' => ['nombre', 'codigo', 'precio', 'stock'],
+            // Añade más entidades aquí
+            default => [],
+        };
+    }
+
 
     /**
      * Muestra la lista de la entidad dinámica (por ejemplo clientes, proveedores).
@@ -21,19 +46,26 @@ class EntidadController extends Controller
     public function index($entidad)
     {
         // Construye el nombre completo de la clase DataTable basada en la entidad
-        $modelo = ucfirst(Str::singular($entidad)); // Convierte 'clientes' a 'Cliente', 'proveedores' a 'Proveedor', etc.
+        //$modelo = ucfirst(Str::singular($entidad)); // Convierte 'clientes' a 'Cliente', 'proveedores' a 'Proveedor', etc.
+        $modelo = $this->getModelClass($entidad);
+        $campos = $this->getCamposVisibles($entidad);
+
         $dataTableClass = 'App\\DataTables\\EntidadDataTable'; // Usar una clase genérica para todas las entidades
         if (!class_exists($dataTableClass)) {
             abort(404, "No se encontró el DataTable para la entidad: $entidad");
         }
 
-        $dataTable = new \App\DataTables\EntidadDataTable($modelo, $entidad);
+        $dataTable = new \App\DataTables\EntidadDataTable($modelo, $entidad, $campos);
         // Define la ruta para el almacenamiento (store) basada en la entidad
 
         //$view = $entidad . '.' . $entidad; // Ejemplo: 'clientes.clientes'
         $view = 'entidad.entidad'; // Vista genérica para todas las entidades
 
-        return $dataTable->render($view,['entidad' => $entidad]);
+        return $dataTable->render($view,[
+            'entidad' => $entidad,
+            'storeRoute' =>route('entidad.store', ['entidad' => $entidad]),
+            'campos'  => $campos
+        ]);
     }
 
     /**
@@ -59,6 +91,7 @@ class EntidadController extends Controller
                 return [
                     'nombre' => 'required|string|max:255',
                     'cif' => 'required|string|unique:proveedores,cif' . ($id ? ',' . $id : ''),
+                    'email' => 'required|email|unique:proveedores,email' . ($id ? ',' . $id : ''),
                     'telefono' => 'nullable|string|max:20',
                 ];
             // Añade más entidades aquí
@@ -79,7 +112,8 @@ class EntidadController extends Controller
     {
         try {
             $validated = $request->validate($this->getValidationRules($entidad));
-            $modelo = ucfirst(Str::singular($entidad));
+            //$modelo = ucfirst(Str::singular($entidad));
+            $modelo = $this->getModelClass($entidad);
             $modelClass = 'App\\Models\\' . $modelo;
 
             if (!class_exists($modelClass)) {
@@ -99,6 +133,7 @@ class EntidadController extends Controller
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
+             \Log::error('Error al guardar proveedor: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'mensaje' => 'Error del servidor',
@@ -115,7 +150,8 @@ class EntidadController extends Controller
      */
     public function show(string $id, string $entidad)
     {
-        $modelo = ucfirst(Str::singular($entidad)); // Convierte 'clientes' a 'Cliente', 'proveedores' a 'Proveedor', etc.
+        //$modelo = ucfirst(Str::singular($entidad)); // Convierte 'clientes' a 'Cliente', 'proveedores' a 'Proveedor', etc.
+        $modelo = $this->getModelClass($entidad);
         $modelClass = 'App\\Models\\' . ucfirst($modelo);
         $registro = $modelClass::findOrFail($id); // Recupera el registro de la entidad desde la base de datos antes de enviarlo a la vista.
         return view($entidad .'.show', compact('registro')); // Pasa el registro a la vista
@@ -129,7 +165,8 @@ class EntidadController extends Controller
      */
     public function showJson(string $entidad, string $id)
     {
-        $modelo = ucfirst(Str::singular($entidad)); // Ej: 'clientes' → 'Cliente'
+        //$modelo = ucfirst(Str::singular($entidad)); // Ej: 'clientes' → 'Cliente'
+        $modelo = $this->getModelClass($entidad);
         $modelClass = 'App\\Models\\' . $modelo;
 
         if (!class_exists($modelClass)) {
@@ -155,7 +192,8 @@ class EntidadController extends Controller
     public function update(Request $request, $entidad, $id)
     {
         $validated = $request->validate($this->getValidationRules($entidad, $id));
-        $modelo = ucfirst(Str::singular($entidad)); // Convierte 'clientes' a 'Cliente', 'proveedores' a 'Proveedor', etc.
+        //$modelo = ucfirst(Str::singular($entidad)); // Convierte 'clientes' a 'Cliente', 'proveedores' a 'Proveedor', etc.
+        $modelo = $this->getModelClass($entidad);
         $modelClass = 'App\\Models\\' . $modelo;
         $registro = $modelClass::findOrFail($id);
         $registro->update($validated);
@@ -173,7 +211,8 @@ class EntidadController extends Controller
      */
     public function destroy(string $entidad, string $id)
     {
-        $modelo = ucfirst(Str::singular($entidad));
+        // $modelo = ucfirst(Str::singular($entidad));
+        $modelo = $this->getModelClass($entidad);
         $modelClass = 'App\\Models\\' . $modelo;
 
         if (!class_exists($modelClass)) {

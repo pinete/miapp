@@ -22,10 +22,10 @@
 {!! $dataTable->scripts() !!}
 
 <!-- Modal de edición -->
-@include('entidad.modales.modal-editar', ['entidad' => $entidad])
+@include('entidad.modales.modal-editar', ['entidad' => $entidad, 'campos' => $campos])
 
 <!-- Modal de creación -->
-@include('entidad.modales.modal-crear', ['entidad' => $entidad, 'storeRoute' => $storeRoute])
+@include('entidad.modales.modal-crear', ['entidad' => $entidad, 'campos'=>$campos, 'storeRoute' => $storeRoute])
 @endsection
 
 @section('scripts')
@@ -37,6 +37,7 @@ $(document).ready(function () {
     tabla.buttons().container().appendTo(tablaId + '_wrapper .col-md-6:eq(0)');
 
     // Abrir modal de edición
+    /*
     $(document).on('click', '.btn-editar', function (e) {
         e.preventDefault();
         const id = $(this).data('id');
@@ -46,7 +47,31 @@ $(document).ready(function () {
             $('#editar-email').val(data.email);
             $('#editar-telefono').val(data.telefono);
             $('#form-editar').attr('action', `/${entidad}/${data.id}`);
-            $('#modal-editar').removeClass('hidden opacity-0').addClass('opacity-100 transition-opacity duration-600');
+            $('#modal-editar')
+                .removeClass('hidden opacity-0')
+                .addClass('opacity-100 transition-opacity duration-600');
+        });
+    });
+    */
+    $(document).on('click', '.btn-editar', function (e) {
+        e.preventDefault();
+        const id = $(this).data('id');
+
+        $.get(`/${entidad}/${id}/json`, function (data) {
+            $('#modal-id').val(data.id);
+            $('#form-editar').attr('action', `/${entidad}/${data.id}`);
+
+            // Recorre todos los campos visibles definidos en Laravel y rellena los inputs
+            if (typeof campos !== 'undefined' && Array.isArray(campos)) {
+                campos.forEach(function (campo) {
+                    const valor = data[campo] ?? '';
+                    $(`#editar-${campo}`).val(valor);
+                });
+            }
+
+            $('#modal-editar')
+                .removeClass('hidden opacity-0')
+                .addClass('opacity-100 transition-opacity duration-600');
         });
     });
 
