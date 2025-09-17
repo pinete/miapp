@@ -34,6 +34,7 @@ $(document).ready(function () {
     const entidad = "{{ $entidad }}";
     const tablaId = "#{{ $tableId }}";
     const tabla = $(tablaId).DataTable();
+    const campos = @json($campos);
     tabla.buttons().container().appendTo(tablaId + '_wrapper .col-md-6:eq(0)');
 
     // Abrir modal de edición
@@ -54,6 +55,7 @@ $(document).ready(function () {
     });
     */
     $(document).on('click', '.btn-editar', function (e) {
+        console.log('Botón de editar clickeado');
         e.preventDefault();
         const id = $(this).data('id');
 
@@ -63,11 +65,12 @@ $(document).ready(function () {
 
             // Recorre todos los campos visibles definidos en Laravel y rellena los inputs
             if (typeof campos !== 'undefined' && Array.isArray(campos)) {
+                console.log('Campos definidos:', campos);
                 campos.forEach(function (campo) {
                     const valor = data[campo] ?? '';
                     $(`#editar-${campo}`).val(valor);
                 });
-            }
+            };
 
             $('#modal-editar')
                 .removeClass('hidden opacity-0')
