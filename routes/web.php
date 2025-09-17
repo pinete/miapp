@@ -1,5 +1,5 @@
 <?php
-//use Illuminate\Support\Facades\Route;
+//use Illuminate\Support\Facades\Route;xs..
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\EntidadController;
 use App\DataTables\ClientesDataTable;
