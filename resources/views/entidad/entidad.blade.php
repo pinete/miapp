@@ -13,7 +13,7 @@
 
 <div class="flex justify-between items-center mb-4">
     <h1 class="text-3xl font-bold text-blue-600">{{ $titulo }}</h1>
-    <button id="btn-crear" title="Nuevo registro" class="inline-block px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded hover:bg-green-700 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer" data-mode="crear">
+    <button id="btn-crear" title="Nuevo registro" class="btn-crear inline-block px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded hover:bg-green-700 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer" data-mode="crear">
         <img src="/icons/CRUD/Agregar-Icono.png" alt="Agregar" class="w-6 h-6 inline">
     </button>
 </div>
@@ -37,28 +37,95 @@ $(document).ready(function () {
     const campos = @json($campos);
     tabla.buttons().container().appendTo(tablaId + '_wrapper .col-md-6:eq(0)');
 
-    // Abrir modal de edición
-    /*
-    $(document).on('click', '.btn-editar', function (e) {
+    // Evento para abrir modal desde cualquier botón con clase .btn-editar o .btn-crear
+    $(document).on('click', '.btn-editar, .btn-crear', function (e) {
         e.preventDefault();
-        const id = $(this).data('id');
+        const btnId = this.id;
+        btnId === 'btn-crear' ? vaciarModal() :  rellenarModal($(this));
+        abrirModal(this); // Con 'this' pasamos el botón clickeado
+    });
+
+    // Función para abrir el modal dinámicamente
+    function abrirModal(trigger) {
+        const btnId = trigger.id; // 'btn-crear' o 'btn-editar'
+        const modalId = btnId === 'btn-crear' ? 'modal-crear' : 'modal-editar';
+        const $modal = $('#' + modalId);
+        const fondoId = $modal.find('.modal-fondo').attr('id');
+        const contentId = $modal.find('.modal-content').attr('id');
+        console.log('ID del modal Padre:', modalId);
+        console.log('ID del fondo:', fondoId);
+        console.log('ID del contenido:', contentId);
+
+        $('#' + modalId).removeClass('hidden');
+        setTimeout(() => {
+            $('#' + fondoId)
+                .removeClass('opacity-0')
+                .addClass('opacity-90 transition-opacity duration-600');
+            $('#' + contentId)
+                .removeClass('transform scale-95 opacity-0')
+                .addClass('transform scale-100 opacity-100 transition duration-300 ease-out');
+        }, 10);
+    }
+
+    // Función para cerrar el modal
+    function cerrarModal(trigger) {
+
+        const $modal    = $(trigger).closest('.fixed');          // Encuentra el modal padre
+        const $fondo    = $modal.find('.modal-fondo');           // Su fondo
+        const $contenido= $modal.find('.modal-content');         // Su caja blanca
+
+        // Animación de cierre
+        $fondo
+            .removeClass('opacity-90 transition-opacity duration-600')
+            .addClass('opacity-0');
+
+        $contenido
+            .removeClass('scale-100 opacity-100 transition duration-300 ease-out')
+            .addClass('scale-95 opacity-0');
+
+        // Al ocultarse el fondo y el contenido...
+        setTimeout(() => $modal.addClass('hidden'), 300);
+    }
+
+    // Función para rellenar el modal de edición
+    function rellenarModal(elem) {
+         const id = elem.data('id');
+         const data = elem.data();
+        // Cargar datos del registro a editar
         $.get(`/${entidad}/${id}/json`, function (data) {
             $('#modal-id').val(data.id);
-            $('#editar-nombre').val(data.nombre);
-            $('#editar-email').val(data.email);
-            $('#editar-telefono').val(data.telefono);
             $('#form-editar').attr('action', `/${entidad}/${data.id}`);
-            $('#modal-editar')
-                .removeClass('hidden opacity-0')
-                .addClass('opacity-100 transition-opacity duration-600');
+
+            // Recorre todos los campos visibles definidos en Laravel y rellena los inputs
+            if (typeof campos !== 'undefined' && Array.isArray(campos)) {
+                console.log('Campos definidos:', campos);
+                campos.forEach(function (campo) {
+                    const valor = data[campo] ?? '';
+                    $(`#editar-${campo}`).val(valor);
+                });
+            }
         });
-    });
-    */
+    }
+
+    // Función para vaciar el modal de creación
+    function vaciarModal() {
+        // Vaciar los inputs del modal
+        if (typeof campos !== 'undefined' && Array.isArray(campos)) {
+            console.log('Campos definidos:', campos);
+            campos.forEach(function (campo) {
+                $(`#crear-${campo}`).val('');
+            });
+        }
+    }
+
+
+    /*
+    // Abrir modal de edición
     $(document).on('click', '.btn-editar', function (e) {
-        console.log('Botón de editar clickeado');
         e.preventDefault();
         const id = $(this).data('id');
 
+        // Cargar datos del registro a editar
         $.get(`/${entidad}/${id}/json`, function (data) {
             $('#modal-id').val(data.id);
             $('#form-editar').attr('action', `/${entidad}/${data.id}`);
@@ -72,24 +139,35 @@ $(document).ready(function () {
                 });
             };
 
-            $('#modal-editar')
-                .removeClass('hidden opacity-0')
-                .addClass('opacity-100 transition-opacity duration-600');
+            $('#modal-editar').removeClass('hidden');
+            setTimeout(() => {
+                $('#modal-editar-fondo')
+                    .removeClass('opacity-0')
+                    .addClass('opacity-90 transition-opacity duration-600');
+                $('#modal-editar-content')
+                    .removeClass('transform scale-95 opacity-0')
+                    .addClass('transform scale-100 opacity-100 transition duration-300 ease-out');
+            }, 10);
         });
     });
+    */
 
+    /*
     // Abrir modal de creación
     $('#btn-crear').on('click', function () {
-        $('#crear-nombre, #crear-email, #crear-telefono').val('');
-        $('#modal-crear').removeClass('hidden opacity-0').addClass('opacity-100 transition-opacity duration-600');
+        //$('#crear-nombre, #crear-email, #crear-telefono').val('');
+        //$('#modal-crear').removeClass('hidden opacity-0').addClass('opacity-100 transition-opacity duration-600');
     });
+    */
+
 
     // Cerrar modales
-    $('#btn-cerrar-modal-editar, #btn-cerrar-modal-crear').on('click', function () {
-        const modalId = $(this).closest('.fixed').attr('id');
-        $('#' + modalId).removeClass('opacity-100').addClass('opacity-0');
-        setTimeout(() => $('#' + modalId).addClass('hidden'), 300);
+    //$('#btn-cerrar-modal-editar, #btn-cerrar-modal-crear').on('click', cerrarModal);
+    //$('#btn-cerrar-modal-editar-icono, #btn-cerrar-modal-crear-icono').on('click', cerrarModal);
+    $(document).on('click', '.btn-close-modal', function () {
+        cerrarModal(this);
     });
+
 
     // Eliminar registro
     $(document).on('click', '.btn-eliminar', function (e) {
@@ -130,11 +208,9 @@ $(document).ready(function () {
             method: method,
             data: data,
             success: function (response) {
-                const modalId = mode === 'editar' ? '#modal-editar' : '#modal-crear';
-                $(modalId).removeClass('opacity-100').addClass('opacity-0');
-                setTimeout(() => $(modalId).addClass('hidden'), 300);
-                tabla.ajax.reload();
+                tabla.ajax.reload(); // Recargar la tabla
                 mostrarNotificacion({ mensaje: response.mensaje, tipo: 'success' });
+                cerrarModal(form.find('button[type="submit"]')[0]);
             },
             error: manejarErrorAJAX
         });
