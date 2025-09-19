@@ -17,5 +17,5 @@ Route::put('/{entidad}/{id}', [EntidadController::class, 'update']); // Actualiz
 Route::delete('/{entidad}/{id}', [EntidadController::class, 'destroy'])->name('entidad.destroy');
 Route::get('/{entidad}/{id}/json', [EntidadController::class, 'showJson'])->name('entidad.json'); // Obtener datos de un registro específico en formato JSON
 Route::get('/{entidad}/{id}', [EntidadController::class, 'show']); // Mostrar detalles de un registro específico
-Route::post('/{entidad}/store', [EntidadController::class, 'store'])->name('entidad.store');
-Route::get('/{entidad}', [EntidadController::class, 'index'])->name('entidad.index');
+
+Route::get('/{entidad}', [EntidadController::class, 'index'])->name('entidad.index'); // Listar registros de una entidad específica

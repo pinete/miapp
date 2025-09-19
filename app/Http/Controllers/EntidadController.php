@@ -11,9 +11,12 @@ class EntidadController extends Controller
 {
     /**
     * Devuelve el nombre (singular) del modelo según la entidad.
+    * @param string $entidad (la entidad en plural, por ejemplo, 'clientes').
+    * @return string (el nombre del modelo en singular, por ejemplo, 'Cliente').
     */
     private function getModelClass(string $entidad): string
     {
+        //Relación entre entidades y modelos
         $mapa = [
             'clientes'   => 'Cliente',
             'proveedores'=> 'Proveedor',
@@ -26,6 +29,11 @@ class EntidadController extends Controller
         return $mapa[$entidad];
     }
 
+    /**
+     * Devuelve los campos visibles para cada entidad en las tablas y formularios.
+     * @param string $entidad
+     * @return array
+     */
     private function getCamposVisibles(string $entidad): array
     {
         return match ($entidad) {
@@ -46,7 +54,6 @@ class EntidadController extends Controller
     public function index($entidad)
     {
         // Construye el nombre completo de la clase DataTable basada en la entidad
-        //$modelo = ucfirst(Str::singular($entidad)); // Convierte 'clientes' a 'Cliente', 'proveedores' a 'Proveedor', etc.
         $modelo = $this->getModelClass($entidad);
         $campos = $this->getCamposVisibles($entidad);
 
@@ -58,8 +65,7 @@ class EntidadController extends Controller
         $dataTable = new \App\DataTables\EntidadDataTable($modelo, $entidad, $campos);
         // Define la ruta para el almacenamiento (store) basada en la entidad
 
-        //$view = $entidad . '.' . $entidad; // Ejemplo: 'clientes.clientes'
-        $view = 'entidad.entidad'; // Vista genérica para todas las entidades
+        $view = 'entidad.entidad'; // Vista genérica para todas las entidades (resources/views/entidad/entidad.blade.php)
 
         return $dataTable->render($view,[
             'entidad' => $entidad,
@@ -77,7 +83,12 @@ class EntidadController extends Controller
         return view($viewBlade);
     }
 
-    // Función para obtener reglas de validación dinámicamente según la entidad
+    /**
+     * Función para obtener reglas de validación dinámicamente según la entidad
+     * @param string $entidad
+     * @param int|null $id (opcional, para reglas de actualización)
+     * @return array
+    */
     private function getValidationRules($entidad, $id = null)
     {
         switch ($entidad) {
@@ -104,7 +115,7 @@ class EntidadController extends Controller
      * Guarda un nuevo registro de la entidad en la base de datos.
      * @param Request $request
      * @return \Illuminate\Http\Response
-     * Esta función maneja peticiones AJAX y devuelve una respuesta JSON
+     * Esta función maneja peticiones AJAX y devuelve una respuesta JSON.
      * Usa validación para asegurar que los datos son correctos antes de guardar.
      * Maneja errores de validación y devuelve mensajes apropiados.
      */
@@ -126,12 +137,14 @@ class EntidadController extends Controller
                 'success' => true,
                 'mensaje' => ucfirst($entidad) . ' creado correctamente'
             ]);
+
         } catch (ValidationException $e) {
             return response()->json([
                 'success' => false,
                 'mensaje' => 'Error de validación',
                 'errors' => $e->errors()
             ], 422);
+
         } catch (\Exception $e) {
              \Log::error('Error al guardar proveedor: ' . $e->getMessage());
             return response()->json([
