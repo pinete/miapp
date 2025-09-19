@@ -11,14 +11,12 @@
                 @php
                     $type = Str::contains($campo, 'email') ? 'email' : 'text';
                 @endphp
-
                 <label for="editar-{{ $campo }}" class="block font-medium mb-1">{{ ucfirst($campo) }}</label>
                 <input type="{{ $type }}"
                     id="editar-{{ $campo }}"
                     name="{{ $campo }}"
                     class="w-full mb-3 p-2 border rounded"
                     placeholder="{{ ucfirst($campo) }}">
-                    
             @endforeach
             <div class="flex justify-end gap-2">
                 <button type="button" id="btn-cerrar-modal-editar" class="btn-close-modal px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancelar</button>

@@ -3,12 +3,12 @@
 @section('content')
     @php
         // Variables dinámicas
-        $titulo = 'Listado de ' . ucfirst($entidad);
-        $storeRoute = route('entidad.store', ['entidad' => $entidad]);
-        $jsonRoute = url("/{$entidad}/:id/json");
-        $updateRoute = url("/{$entidad}/:id");
-        $deleteRoute = url("/{$entidad}/:id");
-        $tableId = $entidad . '-table';
+        $titulo = 'Listado de ' . ucfirst($entidad); // Título de la página
+        $storeRoute = route('entidad.store', ['entidad' => $entidad]); // Ruta para crear nuevo registro
+        $jsonRoute = url("/{$entidad}/:id/json"); // Ruta para obtener datos en JSON
+        $updateRoute = url("/{$entidad}/:id"); // Ruta para actualizar registro
+        $deleteRoute = url("/{$entidad}/:id"); // Ruta para eliminar registro
+        $tableId = $entidad . '-table'; // ID único para la tabla
     @endphp
 
     <div class="flex justify-between items-center mb-4">
@@ -18,7 +18,7 @@
         </button>
     </div>
 
-    {!! $dataTable->table(['id' => $tableId, 'class' => 'table table-bordered table-striped'], true) !!}
+    {!! $dataTable->table(['id' => $tableId, 'class' => 'table table-auto table-bordered table-striped'], true) !!}
     {!! $dataTable->scripts() !!}
 
     <!-- Modal de edición -->
@@ -37,7 +37,9 @@
         const campos = @json($campos);
         tabla.buttons().container().appendTo(tablaId + '_wrapper .col-md-6:eq(0)');
 
-        // Evento para abrir modal desde cualquier botón con clase .btn-editar o .btn-crear
+        /* Manejo de modales para crear y editar */
+
+        // Abrir modal al hacer clic en los botones de crear o editar
         $(document).on('click', '.btn-editar, .btn-crear', function (e) {
             e.preventDefault();
             const btnId = this.id;
@@ -45,16 +47,19 @@
             abrirModal(this); // Con 'this' pasamos el botón clickeado
         });
 
-        // Función para abrir el modal dinámicamente
+        /** Función para abrir el modal dinámicamente
+         * @param {HTMLElement} trigger - El botón que disparó la apertura del modal (crear o editar).
+         * Determina qué modal abrir según el ID del botón.
+         */
         function abrirModal(trigger) {
             const btnId = trigger.id; // 'btn-crear' o 'btn-editar'
             const modalId = btnId === 'btn-crear' ? 'modal-crear' : 'modal-editar';
             const $modal = $('#' + modalId);
             const fondoId = $modal.find('.modal-fondo').attr('id');
             const contentId = $modal.find('.modal-content').attr('id');
-            console.log('ID del modal Padre:', modalId);
-            console.log('ID del fondo:', fondoId);
-            console.log('ID del contenido:', contentId);
+            //console.log('ID del modal Padre:', modalId);
+            //console.log('ID del fondo:', fondoId);
+            //console.log('ID del contenido:', contentId);
 
             $('#' + modalId).removeClass('hidden');
             setTimeout(() => {
@@ -67,7 +72,10 @@
             }, 10);
         }
 
-        // Función para cerrar el modal
+        /** Función para cerrar el modal
+         * @param {HTMLElement} trigger - El botón que disparó el cierre del modal (la 'x' o cancelar).
+         * Encuentra el modal padre y aplica las animaciones de cierre.
+         */
         function cerrarModal(trigger) {
 
             const $modal    = $(trigger).closest('.fixed');          // Encuentra el modal padre
@@ -87,7 +95,10 @@
             setTimeout(() => $modal.addClass('hidden'), 300);
         }
 
-        // Función para rellenar el modal de edición
+        /** Función para rellenar el modal de edición
+         * @param {jQuery} elem - El botón de editar que disparó la apertura del modal.
+         * Obtiene los datos del registro y los coloca en los inputs del modal.
+         */
         function rellenarModal(elem) {
             const id = elem.data('id');
             const data = elem.data();
@@ -98,7 +109,7 @@
 
                 // Recorre todos los campos visibles definidos en Laravel y rellena los inputs
                 if (typeof campos !== 'undefined' && Array.isArray(campos)) {
-                    console.log('Campos definidos:', campos);
+                    //console.log('Campos definidos:', campos);
                     campos.forEach(function (campo) {
                         const valor = data[campo] ?? '';
                         $(`#editar-${campo}`).val(valor);
@@ -107,11 +118,13 @@
             });
         }
 
-        // Función para vaciar el modal de creación
+        /** Función para vaciar el modal de creación
+         * Limpia todos los inputs del modal para un nuevo registro.
+         */
         function vaciarModal() {
             // Vaciar los inputs del modal
             if (typeof campos !== 'undefined' && Array.isArray(campos)) {
-                console.log('Campos definidos:', campos);
+                //console.log('Campos definidos:', campos);
                 campos.forEach(function (campo) {
                     $(`#crear-${campo}`).val('');
                 });

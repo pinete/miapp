@@ -19,3 +19,4 @@ Route::get('/{entidad}/{id}/json', [EntidadController::class, 'showJson'])->name
 Route::get('/{entidad}/{id}', [EntidadController::class, 'show']); // Mostrar detalles de un registro específico
 
 Route::get('/{entidad}', [EntidadController::class, 'index'])->name('entidad.index'); // Listar registros de una entidad específica
+

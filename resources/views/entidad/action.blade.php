@@ -1,5 +1,5 @@
 {{-- Mostrar los botones editar y eliminar de las lineas de la tabla --}}
-<div class='flex gap-x-2'>
+<div class='flex gap-x-1 min-w-[110px] justify-center'>
     <button data-id="{{ $id }}" title="Editar" class="btn-editar inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer">
         <img src="/icons/CRUD/Editar-Icono.png" alt="Editar" class="w-6 h-6 inline">
     </button>

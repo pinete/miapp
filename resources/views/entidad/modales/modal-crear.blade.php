@@ -11,6 +11,7 @@
                 @php
                     $type = Str::contains($campo, 'email') ? 'email' : 'text';
                 @endphp
+
                 <input type="{{ $type }}"
                     name="{{ $campo }}"
                     id="crear-{{ $campo }}"

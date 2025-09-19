@@ -50,7 +50,7 @@ export function mostrarAlerta({
 //
 // *********************************************************************************************************
 
-/** Función para mostrar notificaciones tipo toast
+/** Función para mostrar notificaciones tipo toast.
  *  Muestra una notificación tipo toast en la esquina superior derecha  de la pantalla.
  *
  * @param {Object} options
@@ -169,4 +169,4 @@ export function validarFormulario(form) {
 // }
 // *********************************************************************************************************
 
-// Debemos añadir estas funciones a resources/js/app.js para que Vite las reconozca
+// NOTA: Debemos añadir estas funciones a resources/js/app.js para que Vite las reconozca

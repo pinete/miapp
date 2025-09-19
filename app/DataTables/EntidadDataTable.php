@@ -54,7 +54,7 @@ class EntidadDataTable extends DataTable
      */
     public function html(): HtmlBuilder
     {
-        $tailwindStyle = 'inline-block px-4 py-2 text-sm font-semibold text-white bg-gray-600 rounded hover:bg-gray-700 active:scale-95 transform transition duration-100 ease-in-out';
+        $tailwindStyle = 'inline-block px-4 py-2 text-sm font-semibold text-white bg-gray-600 rounded hover:bg-gray-700 active:scale-95 transform transition duration-100 ease-in-out cursor-pointer';
 
         return $this->builder()
             ->setTableId($this->entidad . '-table') // Ej: 'clientes-table'
@@ -62,14 +62,25 @@ class EntidadDataTable extends DataTable
             ->minifiedAjax() // Usa AJAX para cargar datos
             ->orderBy(1) // Ordena por la primera columna (ID)
             ->selectStyleSingle() // Permite seleccionar una fila a la vez
-            ->responsive(true) // Hace la tabla responsive
+            //->responsive(true) // Hace la tabla responsive
+            //->colReorder(true) // Permite reordenar columnas
             ->dom('Bfrtip') // Define la estructura del DataTable con botones, filtro, tabla, páginación,..
             ->buttons([ //inyecto los botones de exportación usando estilos de Tailwind CSS
                 Button::make('excel')->text('Excel')->className($tailwindStyle),
                 Button::make('csv')->text('CSV')->className($tailwindStyle),
                 Button::make('pdf')->text('PDF')->className($tailwindStyle),
                 Button::make('print')->text('Imprimir')->className($tailwindStyle),
+            ])
+            ->parameters([
+                'responsive' => true,
+                'colReorder' => true, 
+                'language' => [
+                    'url' => '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
+                    //'url' => asset('vendor/datatables/i18n/es.json')
+                ],
             ]);
+
+;
     }
 
     /**
@@ -77,52 +88,7 @@ class EntidadDataTable extends DataTable
      */
     public function getColumns(): array
     {
-        /*
-        // Configuramos las columnas para cada entidad
-        switch ($this->entidad) {
-            case 'clientes':
-                return [
-                    Column::make('id'),
-                    Column::make('nombre'),
-                    Column::make('email'),
-                    Column::make('telefono'),
-                    Column::make('created_at')->title('Creado'),
-                    Column::make('updated_at')->title('Actualizado'),
-                    Column::computed('action')
-                        ->exportable(false)
-                        ->printable(false)
-                        ->width(120)
-                        ->addClass('text-center'),
-                ];
-            case 'proveedores':
-                return [
-                    Column::make('id'),
-                    Column::make('nombre'),
-                    Column::make('cif'),
-                    Column::make('email'),
-                    Column::make('telefono'),
-                    Column::make('created_at')->title('Creado'),
-                    Column::make('updated_at')->title('Actualizado'),
-                    Column::computed('action')
-                        ->exportable(false)
-                        ->printable(false)
-                        ->width(120)
-                        ->addClass('text-center'),
-                ];
-            default:
-                return [
-                    Column::make('id'),
-                    Column::make('nombre')->echo('define las columnas de la entidad en getColumns() de EntidadDataTable.php'),
-                    Column::make('created_at')->title('Creado'),
-                    Column::make('updated_at')->title('Actualizado'),
-                    Column::computed('action')
-                        ->exportable(false)
-                        ->printable(false)
-                        ->width(120)
-                        ->addClass('text-center'),
-                ];
-        }
-        */
+
         // Genero las columnas dinámicamente según los campos visibles y evito usar switch/case
         $columnas = [Column::make('id')];
 

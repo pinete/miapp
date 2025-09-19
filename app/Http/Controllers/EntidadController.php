@@ -21,7 +21,7 @@ class EntidadController extends Controller
             'clientes'   => 'Cliente',
             'proveedores'=> 'Proveedor',
             'articulos'  => 'Articulo',
-            // aquí tus otras entidades...
+            // Añade aquí tus otras entidades... 'entidad' => 'Modelo',
         ];
         if (! isset($mapa[$entidad])) {
             abort(404, "Entidad desconocida: $entidad");
@@ -40,7 +40,7 @@ class EntidadController extends Controller
             'clientes' => ['nombre', 'email', 'telefono'],
             'proveedores' => ['nombre', 'cif', 'email', 'telefono'],
             'articulos' => ['nombre', 'codigo', 'precio', 'stock'],
-            // Añade más entidades aquí
+            // Añade aqui nuevas entidades y sus campos visibles en los formularios
             default => [],
         };
     }
