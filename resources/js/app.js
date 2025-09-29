@@ -23,7 +23,7 @@ window.mostrarNotificacion = mostrarNotificacion;
 window.manejarErrorAJAX = manejarErrorAJAX;
 window.validarFormulario = validarFormulario;
 
-/*
+
 // Funciones para manejar modales (abrir, cerrar, rellenar, vaciar)
 import { abrirModal, cerrarModal, rellenarModal, vaciarModal } from './plugins/modalFunctions.js';
 
@@ -32,4 +32,4 @@ window.abrirModal = abrirModal;
 window.cerrarModal = cerrarModal;
 window.rellenarModal = rellenarModal;
 window.vaciarModal = vaciarModal;
-*/
+

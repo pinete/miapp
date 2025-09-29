@@ -62,9 +62,15 @@ class EntidadDataTable extends DataTable
             ->minifiedAjax() // Usa AJAX para cargar datos
             ->orderBy(1) // Ordena por la primera columna (ID)
             ->selectStyleSingle() // Permite seleccionar una fila a la vez
-            //->responsive(true) // Hace la tabla responsive
-            //->colReorder(true) // Permite reordenar columnas
-            ->dom('Bfrtip') // Define la estructura del DataTable con botones, filtro, tabla, páginación,..
+            //->dom('Bfrtip') // Define la estructura del DataTable con botones, filtro, tabla, páginación,.. Metodo antiguo
+            ->dom('<"flex justify-between items-center mb-4" Bfl>rtip')
+            /* Estructura personalizada con Tailwind CSS:
+                • 	"flex justify-between items-center mb-4": crea un contenedor con clases Tailwind.
+                • 	B: muestra los botones de exportación.
+                • 	f: muestra el buscador.
+                • 	l: muestra el selector de cantidad de registros.
+                • 	r, t, i, p: mantienen el resto del layout (procesando, tabla, info, paginación).*/
+
             ->buttons([ //inyecto los botones de exportación usando estilos de Tailwind CSS
                 Button::make('excel')->text('Excel')->className($tailwindStyle),
                 Button::make('csv')->text('CSV')->className($tailwindStyle),
@@ -73,14 +79,15 @@ class EntidadDataTable extends DataTable
             ])
             ->parameters([
                 'responsive' => true,
-                'colReorder' => true, 
+                'colReorder' => true,
                 'language' => [
                     'url' => '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
                     //'url' => asset('vendor/datatables/i18n/es.json')
                 ],
-            ]);
+                'lengthMenu' => [ [5, 10, 20, 50, -1], [5, 10, 20, 50, 'Todos'] ],
+                'pageLength' => 10, // valor inicial por defecto
 
-;
+            ]);
     }
 
     /**
