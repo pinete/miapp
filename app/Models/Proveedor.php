@@ -10,4 +10,9 @@ class Proveedor extends Model
     //use HasFactory;
     protected $table = 'proveedores';
     protected $fillable = ['nombre', 'cif', 'email', 'telefono']; // Campos que se pueden asignar masivamente
+
+    // Relación polimórfica con adjuntos
+    public function adjuntos() {
+        return $this->morphMany(Adjunto::class, 'adjuntable');
+    }
 }

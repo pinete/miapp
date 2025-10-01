@@ -31,7 +31,13 @@ class EntidadDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->editColumn('created_at', fn($registro) => Carbon::parse($registro->created_at)->format('d/m/Y'))
             ->editColumn('updated_at', fn($registro) => Carbon::parse($registro->updated_at)->format('d/m/Y'))
-            ->addColumn('action', 'entidad.action') // Añado los botones en lineas de la vista action.blade.php
+            //->addColumn('action', 'entidad.action') // Añado los botones en lineas de la vista action.blade.php
+            ->addColumn('action', function ($row) {
+                return view('entidad.action', [
+                    'row' => $row,
+                    'entidad' => $this->entidad, // ← aquí usas la propiedad ya definida
+                ])->render();
+            })
             ->setRowId('id');
     }
 
@@ -81,8 +87,8 @@ class EntidadDataTable extends DataTable
                 'responsive' => true,
                 'colReorder' => true,
                 'language' => [
-                    'url' => '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
-                    //'url' => asset('vendor/datatables/i18n/es.json')
+                    //'url' => '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
+                    //'url' => asset('/datatables/i18n/es.json')
                 ],
                 'lengthMenu' => [ [5, 10, 20, 50, -1], [5, 10, 20, 50, 'Todos'] ],
                 'pageLength' => 10, // valor inicial por defecto
@@ -108,7 +114,7 @@ class EntidadDataTable extends DataTable
         $columnas[] = Column::computed('action')
             ->exportable(false)
             ->printable(false)
-            ->width(120)
+            ->width(150)
             ->addClass('text-center');
 
         return $columnas;

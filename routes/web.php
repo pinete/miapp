@@ -20,3 +20,7 @@ Route::get('/{entidad}/{id}', [EntidadController::class, 'show']); // Mostrar de
 
 Route::get('/{entidad}', [EntidadController::class, 'index'])->name('entidad.index'); // Listar registros de una entidad específica
 
+Route::post('/adjuntos', [EntidadController::class, 'adjuntarArchivo'])->name('entidad.adjuntar'); // Adjuntar archivo a un registro
+Route::get('/adjuntos/{id}', [EntidadController::class, 'verAdjunto']);
+
+

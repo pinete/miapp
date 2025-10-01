@@ -1,9 +1,32 @@
 // resources/js/modalFunctions.js
 
+import { data } from "jquery";
+
 /** Abre un modal según el botón disparador */
 export function abrirModal(trigger) {
-  const btnId    = trigger.id;
-  const modalId  = btnId === 'btn-crear' ? 'modal-crear' : 'modal-editar';
+    //const btnId    = trigger.id;
+    const btnId = trigger.id || trigger.dataset.mode;
+    console.log('btnId:', btnId);
+    let modalId;
+    switch (btnId) {
+        case 'btn-crear':
+            modalId= 'modal-crear';
+            console.log('ModalId:', modalId);
+            break;
+        case 'editar':
+            modalId= 'modal-editar';
+            console.log('ModalId:', modalId);
+            break;
+        case 'adjuntar':
+            modalId= 'modal-adjuntar';
+            console.log('ModalId:', modalId);
+            break;
+        default:
+            console.error('ID de botón no reconocido:', btnId);
+            break;
+    }
+  //const modalId  = btnId === 'btn-crear' ? 'modal-crear' : 'modal-editar';
+  console.log('Abriendo modal:', modalId);
   const $modal   = $('#' + modalId);
   const $fondo   = $modal.find('.modal-fondo');
   const $box     = $modal.find('.modal-content');

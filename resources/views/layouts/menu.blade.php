@@ -16,7 +16,7 @@
         Proveedores
     </a>
     <a href="{{ route('entidad.index', ['entidad' => 'articulos']) }}" class="px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition">
-        articulos
+        Artículos
     </a>
 </nav>
 

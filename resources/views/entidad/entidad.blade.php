@@ -5,6 +5,7 @@
         // Variables dinámicas
         $titulo = 'Listado de ' . ucfirst($entidad); // Título de la página
         $storeRoute = route('entidad.store', ['entidad' => $entidad]); // Ruta para crear nuevo registro
+        $storeRouteAdjuntos = route('entidad.store', ['entidad' => 'adjuntos']); // Ruta para adjuntar archivos a un registro
         $jsonRoute = url("/{$entidad}/:id/json"); // Ruta para obtener datos en JSON
         $updateRoute = url("/{$entidad}/:id"); // Ruta para actualizar registro
         $deleteRoute = url("/{$entidad}/:id"); // Ruta para eliminar registro
@@ -13,7 +14,13 @@
 
     <div class="flex justify-between items-center mb-4">
         <h1 class="text-3xl font-bold text-blue-600">{{ $titulo }}</h1>
-        <button id="btn-crear" title="Nuevo registro" class="btn-crear inline-block px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded hover:bg-green-700 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer" data-mode="crear">
+        <button
+            id="btn-crear"
+            data-mode="crear"
+            title="Nuevo registro"
+            class="btn-crear inline-block px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded hover:bg-green-700 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer"
+            data-mode="crear"
+        >
             <img src="/icons/CRUD/Agregar-Icono.png" alt="Agregar" class="w-6 h-6 inline">
         </button>
     </div>
@@ -27,6 +34,9 @@
 
     <!-- Modal de creación -->
     @include('entidad.modales.modal-crear', ['entidad' => $entidad, 'campos'=>$campos, 'storeRoute' => $storeRoute])
+
+    <!-- Modal adjuntar -->
+    @include('entidad.modales.modal-adjuntos', ['entidad' => 'adjuntos'])
 @endsection
 
 @section('scripts')
@@ -82,7 +92,7 @@
         });
 
         // Envío de formularios (crear y editar)
-        $('form[data-mode]').on('submit', function (e) {
+        $('form[data-mode]').not('#formAdjunto').on('submit', function (e) {
             e.preventDefault();
             const form = $(this);
             const mode = form.data('mode');
@@ -101,6 +111,54 @@
                     cerrarModal(form.find('button[type="submit"]')[0]);
                 },
                 error: manejarErrorAJAX
+            });
+        });
+
+        // Abrir modal Adjuntar archivos
+        $(document).on('click', '.btn-adjuntar', function (e) {
+            e.preventDefault();
+            //const btnId = this.id;
+            $('#adjuntoId').val($(this).data('id'));
+            $('#adjuntoEntidad').val($(this).data('entidad'));
+            console.log('Entidad:', $('#adjuntoEntidad').val());
+            console.log('ID:', $('#adjuntoId').val());
+
+            abrirModal(this);
+
+        });
+
+        // Envío del formulario de adjuntos
+        $('#formAdjunto').on('submit', function (e) {
+            e.preventDefault();
+            const mode = $('#formAdjunto').data('mode');
+            //const extraData = mode === 'adjuntar' ? { _method: 'PUT' } : {};
+            //const data = $(this).serialize() + '&' + $.param(extraData);
+            const formData = new FormData(this);
+
+            console.log('FormData-token:', formData.get('_token'));
+
+            //Probamos los datos del FormData
+            for (let pair of formData.entries()) {
+                console.log('DATOS: ',pair[0] + ':', pair[1]);
+            }
+
+
+
+            $.ajax({
+                url: '/adjuntos',
+                method: 'POST',
+                data: formData, // + '&' + $.param(extraData),
+                processData: false,
+                contentType: false,
+                success: () => {
+                    $('#modalAdjuntos').modal('hide');
+                    Swal.fire('¡Adjunto subido!', '', 'success');
+                },
+                error: manejarErrorAJAX
+                //error: ()=>{
+                //    console.error('Error en la subida:', xhr.responseText);
+                //    Swal.fire('Error al subir el archivo', '', 'error');
+                //}
             });
         });
     });

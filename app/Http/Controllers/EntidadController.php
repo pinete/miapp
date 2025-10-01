@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request; // Request se usa para manejar las peticiones HTTP
 use Illuminate\Validation\ValidationException; // ValidationException se usa para manejar errores de validación
 use Yajra\DataTables\Facades\DataTables; // DataTables se usa para manejar tablas con paginación, búsqueda y ordenación
-
+use App\Models\Adjunto; // Modelo Adjunto
 
 class EntidadController extends Controller
 {
@@ -21,6 +21,7 @@ class EntidadController extends Controller
             'clientes'   => 'Cliente',
             'proveedores'=> 'Proveedor',
             'articulos'  => 'Articulo',
+            'adjuntos'   => 'Adjunto',
             // Añade aquí tus otras entidades... 'entidad' => 'Modelo',
         ];
         if (! isset($mapa[$entidad])) {
@@ -269,4 +270,155 @@ class EntidadController extends Controller
         ->toJson(); // Devuelve los datos en formato JSON para DataTables
     }
 
+
+    /**
+     * Adjunta un archivo a un registro específico de una entidad.
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     * Esta función maneja la subida de archivos y los asocia al registro correspondiente.
+     */
+    /*
+    public function adjuntarArchivo(Request $request)
+    {
+        //$entidad=$request->input('entidad');
+        $request->validate([
+            'archivo' => 'required|file|max:5120|mimes:pdf,doc,docx,txt,jpg,png', // máx 5MB
+            'entidad' => 'required|string',
+            'id' => 'required|integer',
+        ]);
+
+        //$modelo = 'App\\Models\\Adjunto';
+        $modelo = $this->getModelClass($request->entidad); // Esto busca en la entidad original
+
+        if (!class_exists($modelo)) {
+            return response()->json(['error' => 'Entidad no válida'], 400);
+        }
+
+        //$registro = $modelo::findOrFail($request->id);
+        $registro = $modelo::findOrFail($request->id);     // Esto busca el registro al que se adjunta
+        //log('Registro encontrado para adjuntar:', $registro);
+        $archivo = $request->file('archivo');
+        // Verifica si ya existe un adjunto con ese nombre
+        $existe = $registro->adjuntos()->where('nombre', $archivo->getClientOriginalName())->exists();
+            if ($existe) {
+                return response()->json(['error' => 'Ya existe un archivo con ese nombre'], 409);
+            }
+        // Guarda el archivo en la base de datos
+        $registro->adjuntos()->create([
+            'nombre' => $archivo->getClientOriginalName(),
+            'mime' => $archivo->getMimeType(),
+            'contenido' => file_get_contents($archivo->getRealPath()),
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+    */
+/*
+    public function adjuntarArchivo(Request $request)
+    {
+        //Debug de los datos recibidos
+        \Log::info('Archivo recibido:', ['archivo' => $request->file('archivo')]);
+        if (!$request->hasFile('archivo')) {
+            \Log::error('Archivo no detectado por Laravel');
+            return response()->json(['error' => 'Archivo no recibido'], 400);
+        }
+
+        $request->validate([
+            'archivo' => 'required|file|max:5120|mimes:pdf,doc,docx,txt,jpg,png',
+            'entidad' => 'required|string',
+            'id' => 'required|integer',
+        ]);
+
+        return $this->adjuntarA($request->entidad, $request->id, $request->file('archivo'));
+    }
+*/
+
+    public function adjuntarArchivo(Request $request)
+    {
+        // Debug inicial
+        \Log::info('Archivo recibido:', ['archivo' => $request->file('archivo')]);
+
+        if (!$request->hasFile('archivo')) {
+            \Log::error('Archivo no detectado por Laravel');
+            return response()->json(['error' => 'Archivo no recibido'], 400);
+        }
+
+        try {
+            $request->validate([
+                'archivo' => 'required|file|max:5120|mimes:pdf,doc,docx,txt,jpg,png',
+                'entidad' => 'required|string',
+                'id' => 'required|integer',
+            ]);
+
+            return $this->adjuntarA($request->entidad, $request->id, $request->file('archivo'));
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validación fallida:', $e->errors());
+
+            return response()->json([
+                'success' => false,
+                'mensaje' => 'Error de validación',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error inesperado al adjuntar archivo: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'mensaje' => 'Error del servidor',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Adjunta un archivo a cualquier entidad usando morphMany.
+     */
+    private function adjuntarA(string $entidad, int $id, \Illuminate\Http\UploadedFile $archivo): \Illuminate\Http\JsonResponse
+    {
+        $modeloClass = 'App\\Models\\' . $this->getModelClass($entidad);
+
+        if (!class_exists($modeloClass)) {
+            \Log::error("Modelo no encontrado para entidad: $entidad");
+            return response()->json(['error' => 'Entidad no válida'], 400);
+        }
+
+        $registro = $modeloClass::findOrFail($id);
+        if (!$registro) {
+            \Log::error("Registro no encontrado: entidad=$entidad, id=$id");
+            return response()->json(['error' => 'Registro no encontrado'], 404);
+        }
+        // 🔍 Verificación de relación adjuntos
+        if (!method_exists($registro, 'adjuntos')) {
+            \Log::error("La relación adjuntos no está definida en el modelo $modeloClass");
+            return response()->json(['error' => 'Relación adjuntos no definida'], 500);
+        }
+
+        $existe = $registro->adjuntos()->where('nombre', $archivo->getClientOriginalName())->exists();
+        if ($existe) {
+            return response()->json(['error' => 'Ya existe un archivo con ese nombre'], 409);
+        }
+
+        $registro->adjuntos()->create([
+            'nombre' => $archivo->getClientOriginalName(),
+            'mime' => $archivo->getMimeType(),
+            'contenido' => file_get_contents($archivo->getRealPath()),
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+
+    /**
+     * Muestra un archivo adjunto.
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function verAdjunto($id)
+    {
+        $adjunto = Adjunto::findOrFail($id);
+        return response($adjunto->contenido)
+            ->header('Content-Type', $adjunto->mime)
+            ->header('Content-Disposition', 'inline; filename="' . $adjunto->nombre . '"');
+    }
 }
