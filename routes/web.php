@@ -3,12 +3,18 @@
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\EntidadController;
 use App\DataTables\ClientesDataTable;
+use App\Http\Controllers\AdjuntoController;
 
 // Rutas básicas de Laravel. Pagina de bienvenida. Activa la vista resources/views/welcome.blade.php
 Route::get('/', function () {
     return view('welcome');
 });
 
+// Rutas para la gestión de Adjuntos de una entidad
+Route::get('/adjuntos', [AdjuntoController::class, 'filtrados'])->name('adjuntos.filtrados');
+Route::delete('/adjuntos/{id}', [AdjuntoController::class, 'destroy'])->name('adjuntos.destroy');
+
+// Rutas para la gestión dinámica de entidades
 Route::get('/{entidad}/data', [EntidadController::class, 'getRegistrosEntidad']); // Obtener datos vía AJAX para DataTables
 Route::get('/{entidad}/create', [EntidadController::class, 'create']); // Mostrar formulario de creación
 Route::post('/{entidad}/store', [EntidadController::class, 'store'])->name('entidad.store'); // Guardar nuevo registro

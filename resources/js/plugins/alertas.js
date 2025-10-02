@@ -97,22 +97,45 @@ export function mostrarNotificacion({
  */
 export function manejarErrorAJAX(jqXHR, textStatus, errorThrown) {
     let mensajeError = 'Ocurrió un error inesperado.';
-        if (jqXHR.status === 422 && jqXHR.responseJSON?.errors) {
+
+    // Errores de validación (422) Independiente del SWITCH CASE.Laravel, al devolver un 422, lo hace
+    // con una estructura JSON que requiere procesamiento adicional: recorrer los campos y extraer los mensajes.
+    // El switch no permite condiciones compuestas. Solo puedes comparar valores simples. Por eso
+    // tratamos el error 422 de manera independiente.
+    if (jqXHR.status === 422 && jqXHR.responseJSON?.errors) {
         mensajeError = Object.entries(jqXHR.responseJSON.errors)
             .map(([campo, msgs]) => `${campo}: ${msgs[0]}`)
             .join('\n');
+            
     } else {
-        switch (true) {
-            case (jqXHR.status === 0):
+        //resto de errores:
+        switch (jqXHR.status) {
+            case 0:
                 mensajeError = 'No hay conexión. Verifica tu red.';
                 break;
-            case (jqXHR.status === 409):
+            case 409:
                 mensajeError = jqXHR.responseJSON?.mensaje || 'Ya existe un archivo con el mismo nombre para este registro.';
                 break;
-            case (jqXHR.status >= 400 && jqXHR.status < 500):
-                mensajeError = 'Error en la solicitud. Por favor, verifica los datos ingresados.';
+            case 419:
+                mensajeError = 'Sesión expirada o token CSRF inválido. Recarga la página.';
                 break;
-            case (jqXHR.status >= 500):
+            case 400:
+                if (jqXHR.responseJSON?.error === 'Archivo no recibido') {
+                    mensajeError = 'Debes seleccionar un archivo antes de pulsar “Subir”.';
+                } else {
+                    mensajeError = 'Solicitud incorrecta. Verifica los datos.';
+                }
+                break;
+            case 403:
+                mensajeError = 'No tienes permisos para realizar esta acción.';
+                break;
+            case 404:
+                mensajeError = 'Recurso no encontrado.';
+                break;
+            case 500:
+            case 501:
+            case 502:
+            case 503:
                 mensajeError = 'Error del servidor. Intenta nuevamente más tarde.';
                 break;
             default:
@@ -127,10 +150,11 @@ export function manejarErrorAJAX(jqXHR, textStatus, errorThrown) {
                         mensajeError = 'La solicitud fue abortada.';
                         break;
                     default:
-                        mensajeError = 'Ocurrió un error inesperado.';
+                        mensajeError = jqXHR.responseJSON?.error || 'Ocurrió un error inesperado.';
                 }
         }
     }
+
     mostrarNotificacion({ mensaje: mensajeError, tipo: 'error' });
 }
 

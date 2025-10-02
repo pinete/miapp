@@ -4,6 +4,12 @@
     <div id="modal-crear-fondo" class="modal-fondo absolute inset-0 bg-gray-800 bg-opacity-80 backdrop-blur-sm z-40"></div>
     <!-- Contenido fondo blanco opaco -->
     <div id="modal-crear-content" class="modal-content relative bg-white rounded-lg shadow-lg w-full max-w-md p-6 mx-auto z-50 transition transform scale-95 opacity-0">
+        <!-- Tabla de adjuntos del registro actual con scroll -->
+        <div class="mb-6 max-h-64 overflow-y-auto">
+            <h3 class="text-lg font-semibold mb-2">Adjuntos existentes</h3>
+            <table id="tablaAdjuntosModal" class="display w-full text-sm rounded overflow-hidden border border-gray-300 shadow-sm"></table>
+        </div>
+
         <form
             id="formAdjunto"
             method ="POST"
