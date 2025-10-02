@@ -46,10 +46,8 @@
         const tablaId = "#{{ $tableId }}";
         const tabla = $(tablaId).DataTable();
         const campos = @json($campos);
-        //tabla.buttons().container().appendTo(tablaId + '_wrapper .col-md-6:eq(0)'); // Mover los botones de exportación al contenedor que yo decido
-        //tabla.buttons().container().appendTo('#dt-buttons-container');
 
-        /* Manejo de modales para crear y editar */
+        /***********  Manejo de modales para crear, editar y adjuntar  ***********/
 
         // Abrir modal al hacer clic en los botones de crear o editar
         $(document).on('click', '.btn-editar, .btn-crear', function (e) {
@@ -109,6 +107,7 @@
                     tabla.ajax.reload(); // Recargar la tabla
                     mostrarNotificacion({ mensaje: response.mensaje, tipo: 'success' });
                     cerrarModal(form.find('button[type="submit"]')[0]);
+
                 },
                 error: manejarErrorAJAX
             });
@@ -117,32 +116,26 @@
         // Abrir modal Adjuntar archivos
         $(document).on('click', '.btn-adjuntar', function (e) {
             e.preventDefault();
-            //const btnId = this.id;
             $('#adjuntoId').val($(this).data('id'));
             $('#adjuntoEntidad').val($(this).data('entidad'));
             console.log('Entidad:', $('#adjuntoEntidad').val());
             console.log('ID:', $('#adjuntoId').val());
-
             abrirModal(this);
-
         });
 
         // Envío del formulario de adjuntos
         $('#formAdjunto').on('submit', function (e) {
             e.preventDefault();
+            const form = $(this);
             const mode = $('#formAdjunto').data('mode');
-            //const extraData = mode === 'adjuntar' ? { _method: 'PUT' } : {};
-            //const data = $(this).serialize() + '&' + $.param(extraData);
             const formData = new FormData(this);
 
             console.log('FormData-token:', formData.get('_token'));
 
-            //Probamos los datos del FormData
-            for (let pair of formData.entries()) {
-                console.log('DATOS: ',pair[0] + ':', pair[1]);
-            }
-
-
+            // Comprobamos los datos del FormData en la consola
+            // for (let pair of formData.entries()) {
+            //     console.log('DATOS: ',pair[0] + ':', pair[1]);
+            // }
 
             $.ajax({
                 url: '/adjuntos',
@@ -150,9 +143,12 @@
                 data: formData, // + '&' + $.param(extraData),
                 processData: false,
                 contentType: false,
-                success: () => {
-                    $('#modalAdjuntos').modal('hide');
-                    Swal.fire('¡Adjunto subido!', '', 'success');
+                success: function (response) {
+                    //$('#modalAdjuntos').modal('hide');
+                    //Swal.fire('¡Adjunto subido!', '', 'success');
+                    mostrarNotificacion({ mensaje: 'Adjunto subido correctamente', tipo: 'success' });
+                    cerrarModal(form.find('button[type="submit"]')[0]); // Usa el botón submit como trigger
+
                 },
                 error: manejarErrorAJAX
                 //error: ()=>{

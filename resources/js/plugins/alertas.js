@@ -106,6 +106,9 @@ export function manejarErrorAJAX(jqXHR, textStatus, errorThrown) {
             case (jqXHR.status === 0):
                 mensajeError = 'No hay conexión. Verifica tu red.';
                 break;
+            case (jqXHR.status === 409):
+                mensajeError = jqXHR.responseJSON?.mensaje || 'Ya existe un archivo con el mismo nombre para este registro.';
+                break;
             case (jqXHR.status >= 400 && jqXHR.status < 500):
                 mensajeError = 'Error en la solicitud. Por favor, verifica los datos ingresados.';
                 break;

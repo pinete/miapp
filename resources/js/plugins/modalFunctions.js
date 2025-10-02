@@ -40,18 +40,26 @@ export function abrirModal(trigger) {
   }, 10);
 }
 
-/** Cierra el modal en cuyo interior está el botón disparador */
+/** Cierra el modal enviado o el modal en cuyo interior está el botón disparador
+ * @param {*} trigger - El botón que disparó el cierre o el formulario mismo
+*/
 export function cerrarModal(trigger) {
-  const $modal   = $(trigger).closest('.fixed');
-  const $fondo   = $modal.find('.modal-fondo');
-  const $box     = $modal.find('.modal-content');
+    const $trigger = $(trigger);
+    //const $modal   = $(trigger).closest('.fixed');
+    // Para que sirva tanto si el trigger es un botón dentro del modal como si es el formulario
+    const $modal = $trigger.closest('.fixed').length
+        ? $trigger.closest('.fixed') // Si el trigger es un botón dentro del modal
+        : $trigger.find('.fixed'); // Si el trigger es el formulario
 
-  $fondo.removeClass('opacity-90 transition-opacity duration-600')
-        .addClass('opacity-0');
-  $box.removeClass('scale-100 opacity-100 transition duration-300 ease-out')
-      .addClass('scale-95 opacity-0');
+    const $fondo   = $modal.find('.modal-fondo');
+    const $box     = $modal.find('.modal-content');
 
-  setTimeout(() => $modal.addClass('hidden'), 300);
+    $fondo.removeClass('opacity-90 transition-opacity duration-600')
+            .addClass('opacity-0');
+    $box.removeClass('scale-100 opacity-100 transition duration-300 ease-out')
+        .addClass('scale-95 opacity-0');
+
+    setTimeout(() => $modal.addClass('hidden'), 300);
 }
 
 /** Rellena el formulario de edición con datos AJAX */

@@ -41,6 +41,7 @@ class EntidadController extends Controller
             'clientes' => ['nombre', 'email', 'telefono'],
             'proveedores' => ['nombre', 'cif', 'email', 'telefono'],
             'articulos' => ['nombre', 'codigo', 'precio', 'stock'],
+            'adjuntos' => ['adjuntable_type','adjuntable_id','nombre', 'mime'],
             // Añade aqui nuevas entidades y sus campos visibles en los formularios
             default => [],
         };
@@ -377,32 +378,36 @@ class EntidadController extends Controller
     private function adjuntarA(string $entidad, int $id, \Illuminate\Http\UploadedFile $archivo): \Illuminate\Http\JsonResponse
     {
         $modeloClass = 'App\\Models\\' . $this->getModelClass($entidad);
-
+        // Verificación de existencia del modelo
         if (!class_exists($modeloClass)) {
             \Log::error("Modelo no encontrado para entidad: $entidad");
             return response()->json(['error' => 'Entidad no válida'], 400);
         }
 
         $registro = $modeloClass::findOrFail($id);
+        // Verificación de existencia del registro
         if (!$registro) {
             \Log::error("Registro no encontrado: entidad=$entidad, id=$id");
             return response()->json(['error' => 'Registro no encontrado'], 404);
         }
-        // 🔍 Verificación de relación adjuntos
+
+        // Verificación de relación adjuntos
         if (!method_exists($registro, 'adjuntos')) {
             \Log::error("La relación adjuntos no está definida en el modelo $modeloClass");
             return response()->json(['error' => 'Relación adjuntos no definida'], 500);
         }
 
+        // Verifica si ya existe un adjunto con ese nombre
         $existe = $registro->adjuntos()->where('nombre', $archivo->getClientOriginalName())->exists();
         if ($existe) {
             return response()->json(['error' => 'Ya existe un archivo con ese nombre'], 409);
         }
 
+        // Guarda el archivo en la base de datos
         $registro->adjuntos()->create([
-            'nombre' => $archivo->getClientOriginalName(),
-            'mime' => $archivo->getMimeType(),
-            'contenido' => file_get_contents($archivo->getRealPath()),
+            'nombre' => $archivo->getClientOriginalName(),//'nombre' => $archivo->hashName(), // Para evitar duplicados
+            'mime' => $archivo->getMimeType(), //'mime' => $archivo->extension(),
+            'contenido' => file_get_contents($archivo->getRealPath()), //'contenido' => Storage::get($archivo->hashName()),
         ]);
 
         return response()->json(['success' => true]);
