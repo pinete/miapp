@@ -43,4 +43,21 @@ class AdjuntoController extends Controller
         }
     }
 
+    /**
+     * Descargar un archivo adjunto
+     */
+    public function descargar($id)
+    {
+        $adjunto = Adjunto::findOrFail($id);
+
+        if (! $adjunto->contenido) {
+            return response()->json(['error' => 'Contenido no disponible'], 404);
+        }
+
+        return response($adjunto->contenido)
+            ->header('Content-Type', $adjunto->mime)
+            ->header('Content-Disposition', 'attachment; filename="' . $adjunto->nombre . '"');
+    }
+
+
 }

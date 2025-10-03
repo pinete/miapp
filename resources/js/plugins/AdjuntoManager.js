@@ -37,7 +37,29 @@ function initTable(entidad, id, selectorTabla = '#tablaAdjuntosModal') {
             {
                 data: 'id',
                 title: 'Acciones',
-                render: id => `<button class="btn-borrar-adjunto" data-id="${id}">🗑️</button>`
+
+                /* Con un solo boton me funcionaba bien, pero con dos botones los listener de los botones no se activan
+                render: id => `
+                    <button type="button" class="px-2 py-1 bg-blue-200 rounded hover:bg-blue-300" data-id="${id}" title="Descargar">📥</button>
+                    <button type="button" class="px-2 py-1 bg-red-200 rounded hover:bg-red-300" data-id="${id}" title="Eliminar">🗑️</button>
+                `
+                */
+
+                /* SOLUCIÓN:
+                Por defecto, Datatables no ejecuta los eventos si el contenido se inserta como HTML plano
+                sin permitir que el DOM lo reconozca correctamente.
+                Usaremos createdCell en lugar de render.
+                Esto te permite insertar los botones como elementos DOM reales, y los listeners funcionarán sin problemas:
+                */
+                createdCell: function (td, id) {
+                    $(td).html(`
+                        <button type="button" class="btn-descargar-adjunto px-2 py-1 bg-blue-200 rounded hover:bg-blue-300 mr-2" data-id="${id}" title="Descargar">📥</button>
+                        <button type="button" class="btn-borrar-adjunto px-2 py-1 bg-red-200 rounded hover:bg-red-300" data-id="${id}" title="Eliminar">🗑️</button>
+                    `);
+                }
+
+
+
             }
         ],
         dom: 't',
@@ -137,3 +159,14 @@ $(document).on('click', '.btn-borrar-adjunto', function () {
         }
     });
 });
+
+// Listener de botón de descargar adjunto
+$(document).on('click', '.btn-descargar-adjunto', function () {
+    const id = $(this).data('id');
+    if (!id) {
+        mostrarNotificacion({ mensaje: 'ID de adjunto no encontrado', tipo: 'error' });
+        return;
+    }
+    window.location.href = `/adjuntos/${id}/descargar`;
+});
+

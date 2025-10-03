@@ -13,6 +13,8 @@ Route::get('/', function () {
 // Rutas para la gestión de Adjuntos de una entidad
 Route::get('/adjuntos', [AdjuntoController::class, 'filtrados'])->name('adjuntos.filtrados');
 Route::delete('/adjuntos/{id}', [AdjuntoController::class, 'destroy'])->name('adjuntos.destroy');
+Route::get('/adjuntos/{id}/descargar', [AdjuntoController::class, 'descargar'])->name('adjuntos.descargar');
+
 
 // Rutas para la gestión dinámica de entidades
 Route::get('/{entidad}/data', [EntidadController::class, 'getRegistrosEntidad']); // Obtener datos vía AJAX para DataTables

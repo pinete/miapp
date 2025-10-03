@@ -271,69 +271,9 @@ class EntidadController extends Controller
         ->toJson(); // Devuelve los datos en formato JSON para DataTables
     }
 
-
     /**
-     * Adjunta un archivo a un registro específico de una entidad.
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     * Esta función maneja la subida de archivos y los asocia al registro correspondiente.
+     * Adjunta un archivo a un registro de una entidad
      */
-    /*
-    public function adjuntarArchivo(Request $request)
-    {
-        //$entidad=$request->input('entidad');
-        $request->validate([
-            'archivo' => 'required|file|max:5120|mimes:pdf,doc,docx,txt,jpg,png', // máx 5MB
-            'entidad' => 'required|string',
-            'id' => 'required|integer',
-        ]);
-
-        //$modelo = 'App\\Models\\Adjunto';
-        $modelo = $this->getModelClass($request->entidad); // Esto busca en la entidad original
-
-        if (!class_exists($modelo)) {
-            return response()->json(['error' => 'Entidad no válida'], 400);
-        }
-
-        //$registro = $modelo::findOrFail($request->id);
-        $registro = $modelo::findOrFail($request->id);     // Esto busca el registro al que se adjunta
-        //log('Registro encontrado para adjuntar:', $registro);
-        $archivo = $request->file('archivo');
-        // Verifica si ya existe un adjunto con ese nombre
-        $existe = $registro->adjuntos()->where('nombre', $archivo->getClientOriginalName())->exists();
-            if ($existe) {
-                return response()->json(['error' => 'Ya existe un archivo con ese nombre'], 409);
-            }
-        // Guarda el archivo en la base de datos
-        $registro->adjuntos()->create([
-            'nombre' => $archivo->getClientOriginalName(),
-            'mime' => $archivo->getMimeType(),
-            'contenido' => file_get_contents($archivo->getRealPath()),
-        ]);
-
-        return response()->json(['success' => true]);
-    }
-    */
-/*
-    public function adjuntarArchivo(Request $request)
-    {
-        //Debug de los datos recibidos
-        \Log::info('Archivo recibido:', ['archivo' => $request->file('archivo')]);
-        if (!$request->hasFile('archivo')) {
-            \Log::error('Archivo no detectado por Laravel');
-            return response()->json(['error' => 'Archivo no recibido'], 400);
-        }
-
-        $request->validate([
-            'archivo' => 'required|file|max:5120|mimes:pdf,doc,docx,txt,jpg,png',
-            'entidad' => 'required|string',
-            'id' => 'required|integer',
-        ]);
-
-        return $this->adjuntarA($request->entidad, $request->id, $request->file('archivo'));
-    }
-*/
-
     public function adjuntarArchivo(Request $request)
     {
         // Debug inicial

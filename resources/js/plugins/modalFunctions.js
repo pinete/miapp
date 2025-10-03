@@ -59,56 +59,6 @@ export function abrirModal(trigger) {
 
 }
 
-/**
- * Inicializa el DataTable de adjuntos dentro del modal
- * @param {HTMLElement} trigger - Botón que disparó el modal
- * @param {string} modalId - ID del modal abierto
- * @param {jQuery} $modal - Elemento jQuery del modal
- */
-/*
-function _inicializarTablaAdjuntos(trigger, modalId, $modal) {
-    const entidad = trigger.dataset.entidad;
-    const id = trigger.dataset.id;
-
-    if (!entidad || !id) {
-        console.warn('Faltan datos para cargar adjuntos: entidad o id');
-        return;
-    }
-
-    const $form = $modal.find('form');
-    $form.find('[name="entidad"]').val(entidad);
-    $form.find('[name="id"]').val(id);
-
-    const $tabla = $('#tablaAdjuntosModal');
-    if ($.fn.DataTable.isDataTable($tabla)) {
-        $tabla.DataTable().destroy();
-        $tabla.empty();
-    }
-
-    $tabla.DataTable({
-        ajax: {
-            url: '/adjuntos',
-            data: { entidad, id }
-        },
-        columns: [
-            { data: 'nombre', title: 'Nombre' },
-            { data: 'tipo', title: 'Tipo' },
-            { data: 'created_at', title: 'Fecha' },
-            {
-                data: 'id',
-                title: 'Acciones',
-                render: id => `<button class="btn-borrar-adjunto" data-id="${id}">🗑️</button>`
-            }
-        ],
-        dom: 't',
-        paging: false,
-        ordering: false,
-        searching: false
-    });
-}
-
-*/
-
 
 /** Cierra el modal enviado o el modal en cuyo interior está el botón disparador
  * @param {*} trigger - El botón que disparó el cierre o el formulario mismo
