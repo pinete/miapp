@@ -7,6 +7,40 @@ use Illuminate\Validation\ValidationException; // ValidationException se usa par
 use Yajra\DataTables\Facades\DataTables; // DataTables se usa para manejar tablas con paginación, búsqueda y ordenación
 use App\Models\Adjunto; // Modelo Adjunto
 
+/*
+    NOTA:   1. Para crear una nueva tabla (migración) en laravel:
+                php artisan make:migration create_nombre_tabla --create=nombre_tabla
+                Ejemplo para crear una tabla documentos...
+                    php artisan make:migration create_documentos_table --create=documentos
+                    OJO: dentro del entorno Docker/Sail o WSL para tu proyecto Laravel sería...
+                    ./vendor/bin/sail artisan make:migration create_documentos_tabla --create=documentos_tabla
+
+            2. Definimos la estructura en la migración en la funcion up
+                Por ejemplo:
+                    public function up()
+                    {
+                        Schema::create('documentos', function (Blueprint $table) {
+                            $table->id();
+                            $table->string('titulo');
+                            $table->text('descripcion')->nullable();
+                            $table->string('mime');
+                            $table->binary('contenido'); // si guardas el archivo en la base de datos
+                            $table->timestamps(); //Fechas de creación y modificación
+                        });
+                    }
+
+            3. Dentro del entorno, ejecutamos la migración:
+                php artisan migrate
+                OJO: dentro del entorno sería...
+                ./vendor/bin/sail php artisan migrate
+
+            4. Por último, crear el modelo: ./vendor/bin/sail php artisan make:model Articulo
+
+            NOTA:   Si se necesitan validaciones, incorpora la entidad en el switch case de la
+                    función getValidationRules
+
+*/
+
 class EntidadController extends Controller
 {
     /**
@@ -40,9 +74,26 @@ class EntidadController extends Controller
         return match ($entidad) {
             'clientes' => ['nombre', 'email', 'telefono'],
             'proveedores' => ['nombre', 'cif', 'email', 'telefono'],
-            'articulos' => ['nombre', 'codigo', 'precio', 'stock'],
+            'articulos' => ['codigo', 'nombre', 'pvp'],
             'adjuntos' => ['adjuntable_type','adjuntable_id','nombre', 'mime'],
             // Añade aqui nuevas entidades y sus campos visibles en los formularios
+            default => [],
+        };
+    }
+
+    /**
+    * Devuelve los campos que han de desplegarse (+) para ser vistos de cada entidad en las tablas y formularios.
+    * @param string $entidad
+    * @return array
+    */
+    private function getCamposOcultos(string $entidad): array
+    {
+        return match ($entidad) {
+            'clientes' => [],
+            'proveedores' => [],
+            'articulos' => ['tipoImp', 'porcImp', 'ctrlSerLot', 'ctrlStock', 'stockMin', 'stockMax'],
+            'adjuntos' => [],
+            // Añade aqui nuevas entidades y sus campos ocultos en los formularios
             default => [],
         };
     }
@@ -106,6 +157,12 @@ class EntidadController extends Controller
                     'cif' => 'required|string|unique:proveedores,cif' . ($id ? ',' . $id : ''),
                     'email' => 'required|email|unique:proveedores,email' . ($id ? ',' . $id : ''),
                     'telefono' => 'nullable|string|max:20',
+                ];
+            case 'articulos':
+                return [
+                    'codigo' => 'required|string|max:255|unique:articulos,codigo' . ($id ? ',' . $id : ''),
+                    'nombre' => 'required|string|max:255',
+                    'pvp' => 'nullable|numeric',
                 ];
             // Añade más entidades aquí
             default:
