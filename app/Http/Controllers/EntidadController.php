@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request; // Request se usa para manejar las peticiones HTTP
 use Illuminate\Validation\ValidationException; // ValidationException se usa para manejar errores de validación
-use Yajra\DataTables\Facades\DataTables; // DataTables se usa para manejar tablas con paginación, búsqueda y ordenación
 use App\Models\Adjunto; // Modelo Adjunto
+use App\DataTables\EntidadDataTable;
 
 /*
     NOTA:   1. Para crear una nueva tabla (migración) en laravel:
@@ -109,13 +109,14 @@ class EntidadController extends Controller
         // Construye el nombre completo de la clase DataTable basada en la entidad
         $modelo = $this->getModelClass($entidad);
         $campos = $this->getCamposVisibles($entidad);
+        $camposOcultos = $this->getCamposOcultos($entidad);
 
         $dataTableClass = 'App\\DataTables\\EntidadDataTable'; // Usar una clase genérica para todas las entidades
         if (!class_exists($dataTableClass)) {
             abort(404, "No se encontró el DataTable para la entidad: $entidad");
         }
 
-        $dataTable = new \App\DataTables\EntidadDataTable($modelo, $entidad, $campos);
+        $dataTable = new \App\DataTables\EntidadDataTable($modelo, $entidad, $campos, $camposOcultos);
         // Define la ruta para el almacenamiento (store) basada en la entidad
 
         $view = 'entidad.entidad'; // Vista genérica para todas las entidades (resources/views/entidad/entidad.blade.php)
@@ -123,7 +124,8 @@ class EntidadController extends Controller
         return $dataTable->render($view,[
             'entidad' => $entidad,
             'storeRoute' =>route('entidad.store', ['entidad' => $entidad]),
-            'campos'  => $campos
+            'campos'  => $campos,
+            'camposOcultos' =>$camposOcultos
         ]);
     }
 
@@ -224,7 +226,7 @@ class EntidadController extends Controller
     {
         //$modelo = ucfirst(Str::singular($entidad)); // Convierte 'clientes' a 'Cliente', 'proveedores' a 'Proveedor', etc.
         $modelo = $this->getModelClass($entidad);
-        $modelClass = 'App\\Models\\' . ucfirst($modelo);
+        $modelClass = 'App\\Models\\' . $modelo;
         $registro = $modelClass::findOrFail($id); // Recupera el registro de la entidad desde la base de datos antes de enviarlo a la vista.
         return view($entidad .'.show', compact('registro')); // Pasa el registro a la vista
     }
@@ -301,32 +303,33 @@ class EntidadController extends Controller
         }
     }
 
-    /**
+
+/**
      * Proporciona datos de la entidad para DataTables y muestra los botones de acción.
-     * @return \Illuminate\Http\JsonResponse
+     * @param string $entidad (la entidad a actualizar, por ejemplo, 'clientes')
+     * @return JsonResponse $dataTable incluyendo camposVisibles y camposOcultos
      * Esta función es llamada vía AJAX desde DataTables en la vista index.blade.php
      */
-    public function getRegistrosEntidad(string $modelo)
-    {
-        //dd('entró en el controlador getClientes');
-        $registros = ucfirst($modelo)::query(); // Consulta base para obtener los registros de la entidad
+public function getRegistrosEntidad(string $entidad)
+// Simplificamos la función y trasladamos los botones al método dataTable() dentro de EntidadDataTable
+{
+   
+    $modelo = $this->getModelClass($entidad);
+    $camposVisibles = $this->getCamposVisibles($entidad);
+    $camposOcultos  = $this->getCamposOcultos($entidad);
 
-        //Eloquent DataTables permite manipular los datos antes de enviarlos a DataTables vía AJAX.
-        return DataTables::eloquent($registros)
-            // addColumn añade una columna de acciones con un botón de editar
-            ->addColumn('action', function ($registro) {
-                return //Agrega dos botones: Editar y Eliminar
-                    //'<button data-id="'.$cliente->id.'" title="Editar" class="btn-editar inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 transition mr-2">Editar</button>' .
-                    //'<button data-id="'.$cliente->id.'" class="btn-eliminar inline-block px-3 py-1 text-sm font-semibold text-white bg-red-600 rounded hover:bg-red-700 transition">Eliminar</button>';
-                    '<button data-id="'.$registro->id.'" title="Editar" class="btn-editar inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer">'.
-                        '<img src="/icons/CRUD/Editar-Icono.png" alt="Editar" class="w-6 h-6 inline">'.
-                    '</button>'.
-                    '<button data-id="'.$registro->id.'" title="Eliminar" class="btn-eliminar inline-block px-3 py-1 text-sm font-semibold text-white bg-red-600 rounded hover:bg-red-700 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer">' .
-                        '<img src="/icons/CRUD/Eliminar-Icono.png" alt="Eliminar" class="w-6 h-6 inline">' .
-                    '</button>';
-            })
-        ->toJson(); // Devuelve los datos en formato JSON para DataTables
-    }
+    $dataTable = new EntidadDataTable($modelo, $entidad, $camposVisibles, $camposOcultos);
+
+    //dd(\App\Models\Articulo::find(1)->toArray());
+
+    return $dataTable->dataTable($dataTable->query())
+                     ->with([
+                         'camposVisibles' => $camposVisibles,
+                         'camposOcultos' => $camposOcultos
+                     ])
+                     ->toJson();
+
+}
 
     /**
      * Adjunta un archivo a un registro de una entidad

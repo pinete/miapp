@@ -31,6 +31,5 @@
         <!--<i class="fas fa-paperclip"></i> -->
         <img src="/icons/CRUD/icons8-adjuntar-100.png" alt="Eliminar" class="w-6 h-6 inline">
     </button>
-
 </div>
 

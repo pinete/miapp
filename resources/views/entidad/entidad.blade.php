@@ -157,6 +157,34 @@
                 //}
             });
         });
+
+        // Listener de botón expandir
+        $('#{{ $entidad }}-table').on('click', '.btn-expand-row', function () {
+            const $btn = $(this);
+            const $tr = $btn.closest('tr');
+            const table = $('#articulos-table').DataTable();
+            const row = table.row($tr);
+            const data = row.data();
+            //const ocultos = $('#{{ $entidad }}-table').DataTable().ajax.json().camposOcultos;
+            const ocultos = table.ajax.json().camposOcultos;
+
+            // Si esta mostrando datos ocultos -> ocultar los datos
+            if (row.child.isShown()) {
+                row.child.hide();
+                $tr.removeClass('shown');
+            // Si no muestra los datos ocultos -> Mostrar los datos
+            } else {
+                let html = '<table class="w-full text-sm text-left">';
+                ocultos.forEach(campo => {
+                    html += `<tr><td class="font-semibold pr-4">${campo}</td><td>${data[campo] ?? '<i class="text-gray-400">Sin valor</i>'}</td></tr>`;
+                });
+                html += '</table>';
+
+                row.child(html).show();
+                $tr.addClass('shown');
+            }
+        });
+
     });
     </script>
 @endsection

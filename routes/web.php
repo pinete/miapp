@@ -1,8 +1,8 @@
 <?php
 //use Illuminate\Support\Facades\Route;xs..
-use App\Http\Controllers\ClienteController;
+//use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\EntidadController;
-use App\DataTables\ClientesDataTable;
+//use App\DataTables\ClientesDataTable;
 use App\Http\Controllers\AdjuntoController;
 
 // Rutas básicas de Laravel. Pagina de bienvenida. Activa la vista resources/views/welcome.blade.php
@@ -18,9 +18,9 @@ Route::get('/adjuntos/{id}/descargar', [AdjuntoController::class, 'descargar'])-
 
 // Rutas para la gestión dinámica de entidades
 Route::get('/{entidad}/data', [EntidadController::class, 'getRegistrosEntidad']); // Obtener datos vía AJAX para DataTables
-Route::get('/{entidad}/create', [EntidadController::class, 'create']); // Mostrar formulario de creación
+//Route::get('/{entidad}/create', [EntidadController::class, 'create']); // Mostrar formulario de creación
 Route::post('/{entidad}/store', [EntidadController::class, 'store'])->name('entidad.store'); // Guardar nuevo registro
-Route::get('/{entidad}/{id}/edit', [EntidadController::class, 'edit']); // Mostrar formulario de edición
+//Route::get('/{entidad}/{id}/edit', [EntidadController::class, 'edit']); // Mostrar formulario de edición
 Route::put('/{entidad}/{id}', [EntidadController::class, 'update']); // Actualizar registro
 Route::delete('/{entidad}/{id}', [EntidadController::class, 'destroy'])->name('entidad.destroy');
 Route::get('/{entidad}/{id}/json', [EntidadController::class, 'showJson'])->name('entidad.json'); // Obtener datos de un registro específico en formato JSON

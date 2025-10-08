@@ -11,16 +11,20 @@ use Yajra\DataTables\Services\DataTable;
 use Carbon\Carbon;
 
 class EntidadDataTable extends DataTable
-{
+{           
     protected string $modelo;
     protected string $entidad;
-    protected array  $campos;
+    //protected array  $campos;
+    protected array  $camposVisibles=[];
+    protected array  $camposOcultos=[];
 
-    public function __construct(string $modelo, string $entidad, array $campos)
+    public function __construct(string $modelo, string $entidad, array $camposVisibles, array $camposOcultos = [])
     {
         $this->modelo   = ucfirst($modelo);   // Ej: 'Cliente'
         $this->entidad  = strtolower($entidad); // Ej: 'clientes'
-        $this->campos   = $campos; // Campos visibles en la tabla
+        //$this->campos   = $campos; // Todos los campos en la tabla
+        $this->camposVisibles = $camposVisibles; // Campos visibles en la tabla
+        $this->camposOcultos = $camposOcultos; // Campos ocultos en la tabla
     }
 
     /**
@@ -28,32 +32,95 @@ class EntidadDataTable extends DataTable
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
+        /*
         return (new EloquentDataTable($query))
             ->editColumn('created_at', fn($registro) => Carbon::parse($registro->created_at)->format('d/m/Y'))
             ->editColumn('updated_at', fn($registro) => Carbon::parse($registro->updated_at)->format('d/m/Y'))
-            //->addColumn('action', 'entidad.action') // Añado los botones en lineas de la vista action.blade.php
+            //Columna de expandir si existen camposOcultos
+            ->addColumn('expandir', function ($row) {
+                return '<button data-id="'.$row->id.'" class="btn-expand-row px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" title="Ver más">🔽</button>';
+            })
+            ->rawColumns(['expandir', 'action'])
+
             ->addColumn('action', function ($row) {
                 return view('entidad.action', [
                     'row' => $row,
                     'entidad' => $this->entidad, // ← aquí usas la propiedad ya definida
-                ])->render();
+                    'camposOcultos' => $this->camposOcultos,
+                ]);
+            //->render();
             })
-            ->setRowId('id');
-    }
+            ->setRowId('id')
+            ->with([
+                'camposVisibles' => $this->camposVisibles,
+                'camposOcultos' => $this->camposOcultos
+            ]);
+            */
+        $dataTable = (new EloquentDataTable($query))
+        ->editColumn('created_at', fn($registro) => Carbon::parse($registro->created_at)->format('d/m/Y'))
+        ->editColumn('updated_at', fn($registro) => Carbon::parse($registro->updated_at)->format('d/m/Y'))
+        ->addColumn('action', function ($row) {
+            return view('entidad.action', [
+                'row' => $row,
+                'entidad' => $this->entidad,
+                'camposOcultos' => $this->camposOcultos,
+            ])->render();
+        })
+        ->setRowId('id')
+        ->with([
+            'camposVisibles' => $this->camposVisibles,
+            'camposOcultos' => $this->camposOcultos
+        ]);
 
-    /**
-     * Fuente de datos para el DataTable.
-     */
-    public function query(): QueryBuilder
-    {
-        $modelClass = 'App\\Models\\' . $this->modelo;
+        // Solo añadir columna expandir si hay campos ocultos
+        if (!empty($this->camposOcultos)) {
+            $dataTable->addColumn('expandir', function ($row) {
+                return '<button data-id="'.$row->id.'" class="btn-expand-row px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" title="Ver más">🔽</button>';
+            });
 
-        if (!class_exists($modelClass)) {
-            abort(404, "Modelo no encontrado: $modelClass");
+            $dataTable->rawColumns(['expandir', 'action']);
+        } else {
+            $dataTable->rawColumns(['action']);
         }
 
-        return (new $modelClass)->newQuery();
+        return $dataTable;
+
     }
+/**
+     * Columnas del DataTable.
+     */
+    public function getColumns(): array
+    {
+        $columnas = [];
+        // Si existen camposOcultos
+        if (!empty($this->camposOcultos)) {
+            $columnas[] = Column::computed('expandir')
+                ->exportable(false)
+                ->printable(false)
+                ->width(50)
+                ->addClass('text-center')
+                ->title(''); // Sin título para mantenerlo compacto
+        }
+        // Resto de columnas
+        $columnas[] = Column::make('id');
+
+        // Genero las columnas dinámicamente según los campos visibles y evito usar switch/case
+        foreach ($this->camposVisibles as $campo) {
+            $columnas[] = Column::make($campo);
+        }
+
+        $columnas[] = Column::make('created_at')->title('Creado');
+        $columnas[] = Column::make('updated_at')->title('Actualizado');
+        $columnas[] = Column::computed('action')
+            ->exportable(false)
+            ->printable(false)
+            ->width(150)
+            ->addClass('text-center');
+
+        return $columnas;
+    }
+
+
 
     /**
      * Configuración HTML del DataTable.
@@ -96,28 +163,18 @@ class EntidadDataTable extends DataTable
             ]);
     }
 
-    /**
-     * Columnas del DataTable.
+  /**
+     * Fuente de datos para el DataTable.
      */
-    public function getColumns(): array
+    public function query(): QueryBuilder
     {
+        $modelClass = 'App\\Models\\' . $this->modelo;
 
-        // Genero las columnas dinámicamente según los campos visibles y evito usar switch/case
-        $columnas = [Column::make('id')];
-
-        foreach ($this->campos as $campo) {
-            $columnas[] = Column::make($campo);
+        if (!class_exists($modelClass)) {
+            abort(404, "Modelo no encontrado: $modelClass");
         }
 
-        $columnas[] = Column::make('created_at')->title('Creado');
-        $columnas[] = Column::make('updated_at')->title('Actualizado');
-        $columnas[] = Column::computed('action')
-            ->exportable(false)
-            ->printable(false)
-            ->width(150)
-            ->addClass('text-center');
-
-        return $columnas;
+        return (new $modelClass)->newQuery();
     }
 
     /**
