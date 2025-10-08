@@ -28,7 +28,6 @@
         data-entidad="{{ $entidad }}"
         class="btn-adjuntar inline-block px-3 py-1 text-sm font-semibold text-white bg-gray-600 rounded hover:bg-gray-700 active:scale-95 transform transition duration-100 ease-in-out mr-1 cursor-pointer"
     >
-        <!--<i class="fas fa-paperclip"></i> -->
         <img src="/icons/CRUD/icons8-adjuntar-100.png" alt="Eliminar" class="w-6 h-6 inline">
     </button>
 </div>

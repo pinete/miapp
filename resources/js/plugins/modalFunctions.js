@@ -1,6 +1,6 @@
 // resources/js/modalFunctions.js
 
-import { data } from "jquery";
+import { data, isEmptyObject } from "jquery";
 import { AdjuntoManager } from './AdjuntoManager.js';
 
 
@@ -83,7 +83,7 @@ export function cerrarModal(trigger) {
 }
 
 /** Rellena el formulario de edición con datos AJAX */
-export function rellenarModal(elem, entidad, campos) {
+export function rellenarModal(elem, entidad, campos, camposOcultos) {
   const id  = elem.data('id');
   $.get(`/${entidad}/${id}/json`, data => {
     $('#modal-id').val(data.id);
@@ -91,6 +91,12 @@ export function rellenarModal(elem, entidad, campos) {
     campos.forEach(campo => {
       $(`#editar-${campo}`).val(data[campo] || '');
     });
+    // Si existen campos ocultos...
+    if (!isEmptyObject(camposOcultos)) {
+      camposOcultos.forEach(campo => {
+        $(`#editar-${campo}`).val(data[campo] || '');
+      });
+    }
   });
 }
 

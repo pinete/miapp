@@ -58,6 +58,4 @@ class AdjuntoController extends Controller
             ->header('Content-Type', $adjunto->mime)
             ->header('Content-Disposition', 'attachment; filename="' . $adjunto->nombre . '"');
     }
-
-
 }

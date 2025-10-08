@@ -46,6 +46,7 @@
         const tablaId = "#{{ $tableId }}";
         const tabla = $(tablaId).DataTable();
         const campos = @json($campos);
+        const camposOcultos = @json($camposOcultos);
 
         /***********  Manejo de modales para crear, editar y adjuntar  ***********/
 
@@ -54,8 +55,8 @@
             e.preventDefault();
             const btnId = this.id;
             btnId === 'btn-crear'
-                ? vaciarModal(campos)
-                : rellenarModal($(this), entidad, campos);
+                ? vaciarModal(campos, camposOcultos)
+                : rellenarModal($(this), entidad, campos, camposOcultos);
             abrirModal(this); // Con 'this' pasamos el botón clickeado
         });
 
@@ -162,18 +163,18 @@
         $('#{{ $entidad }}-table').on('click', '.btn-expand-row', function () {
             const $btn = $(this);
             const $tr = $btn.closest('tr');
-            const table = $('#articulos-table').DataTable();
+            //const table = $('#articulos-table').DataTable();
+            const table = $('#{{ $entidad }}-table').DataTable();
             const row = table.row($tr);
             const data = row.data();
             //const ocultos = $('#{{ $entidad }}-table').DataTable().ajax.json().camposOcultos;
             const ocultos = table.ajax.json().camposOcultos;
-
-            // Si esta mostrando datos ocultos -> ocultar los datos
-            if (row.child.isShown()) {
+           
+            // Controlamos la acción al pulsar el boton expandir
+            if (row.child.isShown()) { // Si esta mostrando datos ocultos -> Ocultar los datos
                 row.child.hide();
                 $tr.removeClass('shown');
-            // Si no muestra los datos ocultos -> Mostrar los datos
-            } else {
+            } else { // Si no muestra los datos ocultos -> Mostrar los datos
                 let html = '<table class="w-full text-sm text-left">';
                 ocultos.forEach(campo => {
                     html += `<tr><td class="font-semibold pr-4">${campo}</td><td>${data[campo] ?? '<i class="text-gray-400">Sin valor</i>'}</td></tr>`;
