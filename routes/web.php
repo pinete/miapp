@@ -27,6 +27,7 @@ Route::get('/{entidad}/{id}/json', [EntidadController::class, 'showJson'])->name
 //Route::get('/{entidad}/{id}', [EntidadController::class, 'show']); // Mostrar detalles de un registro específico
 
 Route::get('/{entidad}', [EntidadController::class, 'index'])->name('entidad.index'); // Listar registros de una entidad específica
+Route::get('/{entidad}/estructura', [EntidadController::class, 'estructuraJson'])->name('entidad.estructura'); // Para crear el json de la estructura de la entidad
 
 // Omitimos estas rutas para evitar entrar "a saco" en la tabla Adjuntos y poder borrar, modificar y crear 
 // registros sin control de la aplicación (son registros vinculados a otras entidades)

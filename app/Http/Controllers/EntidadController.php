@@ -6,6 +6,9 @@ use Illuminate\Http\Request; // Request se usa para manejar las peticiones HTTP
 use Illuminate\Validation\ValidationException; // ValidationException se usa para manejar errores de validación
 use App\Models\Adjunto; // Modelo Adjunto
 use App\DataTables\EntidadDataTable;
+use Illuminate\Support\Facades\Schema; // Para capturar el tipo de dato de la base de datos.
+use Illuminate\Support\Str;
+
 
 /*
     NOTA:   1. Para crear una nueva tabla (migración) en laravel:
@@ -165,6 +168,12 @@ class EntidadController extends Controller
                     'codigo' => 'required|string|max:255|unique:articulos,codigo' . ($id ? ',' . $id : ''),
                     'nombre' => 'required|string|max:255',
                     'pvp' => 'nullable|numeric',
+                    'ctrlStock' => 'nullable|boolean',
+                    'ctrlSerLot' => 'nullable|boolean',
+                    'stockMin' => 'nullable|numeric',
+                    'stockMax' => 'nullable|numeric',
+                    'numDecimales' => 'nullable|integer|min:0|max:6',
+
                 ];
             // Añade más entidades aquí
             default:
@@ -224,12 +233,14 @@ class EntidadController extends Controller
      */
     public function show(string $id, string $entidad)
     {
-        //$modelo = ucfirst(Str::singular($entidad)); // Convierte 'clientes' a 'Cliente', 'proveedores' a 'Proveedor', etc.
+        /*
         $modelo = $this->getModelClass($entidad);
         $modelClass = 'App\\Models\\' . $modelo;
         $registro = $modelClass::findOrFail($id); // Recupera el registro de la entidad desde la base de datos antes de enviarlo a la vista.
         return view($entidad .'.show', compact('registro')); // Pasa el registro a la vista
+        */
     }
+       
 
     /**
      * Proporciona los datos de un cliente específico en formato JSON.
@@ -239,7 +250,7 @@ class EntidadController extends Controller
      */
     public function showJson(string $entidad, string $id)
     {
-        //$modelo = ucfirst(Str::singular($entidad)); // Ej: 'clientes' → 'Cliente'
+        /*
         $modelo = $this->getModelClass($entidad);
         $modelClass = 'App\\Models\\' . $modelo;
 
@@ -253,6 +264,49 @@ class EntidadController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+        */
+
+        // Modificación para que incluta en el json el tipo de dato ademas del valor
+        $modelo = $this->getModelClass($entidad);
+        $modelClass = 'App\\Models\\' . $modelo;
+
+        if (!class_exists($modelClass)) {
+            return response()->json(['error' => "Modelo no encontrado: $modelo"], 500);
+        }
+
+        try {
+            $registro = $modelClass::findOrFail($id);
+            $tabla = (new $modelClass)->getTable();
+            $campos = Schema::getColumnListing($tabla);
+            $casts = (new $modelClass)->getCasts(); // Para asegurar que si es booleano nos lo reconozca (ver el modelo Articulo.php)
+
+
+            $json = [];
+
+            foreach ($campos as $campo) {
+                $tipoBD = Schema::getColumnType($tabla, $campo); // Ej: string, integer, boolean, datetime...
+                $tipoCast = $casts[$campo] ?? null;
+
+                // Mapeo tipo BD → tipo HTML
+                $tipoHTML = match (true) {
+                    $tipoCast === 'boolean' => 'checkbox',
+                    in_array($tipoBD, ['integer', 'float', 'double', 'decimal']) => 'number',
+                    in_array($tipoBD, ['date']) => 'date',
+                    in_array($tipoBD, ['datetime', 'timestamp']) => 'datetime-local',
+                    default => 'text',
+                };
+
+                $json[$campo] = [
+                    'value' => $registro->$campo,
+                    'type'  => $tipoHTML
+                ];
+            }
+
+            return response()->json($json);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+
     }
 
 
@@ -426,4 +480,80 @@ public function getRegistrosEntidad(string $entidad)
             ->header('Content-Type', $adjunto->mime)
             ->header('Content-Disposition', 'inline; filename="' . $adjunto->nombre . '"');
     }
+
+    /**
+     * Obtener nombres y tipos de campos de una entidad sin consultar registros
+     */
+    public function estructuraEntidad(string $entidad)
+    {
+        $modelo = $this->getModelClass($entidad);
+        $modelClass = 'App\\Models\\' . $modelo;
+
+        if (!class_exists($modelClass)) {
+            return response()->json(['error' => "Modelo no encontrado: $modelo"], 500);
+        }
+
+        $tabla = (new $modelClass)->getTable();
+        $campos = Schema::getColumnListing($tabla);
+        $casts = (new $modelClass)->getCasts();
+
+        $estructura = [];
+
+        foreach ($campos as $campo) {
+            $tipoBD = Schema::getColumnType($tabla, $campo);
+            $tipoCast = $casts[$campo] ?? null;
+
+            $tipoHTML = match (true) {
+                $tipoCast === 'boolean' => 'checkbox',
+                in_array($tipoBD, ['integer', 'float', 'double', 'decimal']) => 'number',
+                in_array($tipoBD, ['date']) => 'date',
+                in_array($tipoBD, ['datetime', 'timestamp']) => 'datetime-local',
+                default => 'text',
+            };
+
+            $estructura[$campo] = [
+                'value' => null,
+                'type' => $tipoHTML
+            ];
+        }
+
+        return response()->json($estructura);
+    }
+
+    public function estructuraJson(string $entidad)
+    {
+        $modelo = $this->getModelClass($entidad);
+        $modelClass = 'App\\Models\\' . $modelo;
+
+        if (!class_exists($modelClass)) {
+            return response()->json(['error' => "Modelo no encontrado: $modelo"], 500);
+        }
+
+        $tabla = (new $modelClass)->getTable();
+        $campos = Schema::getColumnListing($tabla);
+        $casts = (new $modelClass)->getCasts();
+
+        $estructura = [];
+
+        foreach ($campos as $campo) {
+            $tipoBD = Schema::getColumnType($tabla, $campo);
+            $tipoCast = $casts[$campo] ?? null;
+
+            $tipoHTML = match (true) {
+                $tipoCast === 'boolean' => 'checkbox',
+                in_array($tipoBD, ['integer', 'float', 'double', 'decimal']) => 'number',
+                in_array($tipoBD, ['date']) => 'date',
+                in_array($tipoBD, ['datetime', 'timestamp']) => 'datetime-local',
+                default => 'text',
+            };
+
+            $estructura[$campo] = [
+                'value' => null,
+                'type' => $tipoHTML
+            ];
+        }
+
+        return response()->json($estructura);
+    }
+
 }

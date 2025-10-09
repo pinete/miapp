@@ -45,8 +45,10 @@
         const entidad = "{{ $entidad }}";
         const tablaId = "#{{ $tableId }}";
         const tabla = $(tablaId).DataTable();
-        const campos = @json($campos);
-        const camposOcultos = @json($camposOcultos);
+        const camposVisibles = @json($campos);
+        console.log('campos: ', camposVisibles);
+        const camposOcultos = @json($camposOcultos); 
+        console.log('camposOcultos: ', camposOcultos);
 
         /***********  Manejo de modales para crear, editar y adjuntar  ***********/
 
@@ -55,8 +57,8 @@
             e.preventDefault();
             const btnId = this.id;
             btnId === 'btn-crear'
-                ? vaciarModal(campos, camposOcultos)
-                : rellenarModal($(this), entidad, campos, camposOcultos);
+                ? vaciarModal(entidad, camposVisibles, camposOcultos)
+                : rellenarModal($(this), entidad, camposVisibles, camposOcultos);
             abrirModal(this); // Con 'this' pasamos el botón clickeado
         });
 

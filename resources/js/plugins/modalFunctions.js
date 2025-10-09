@@ -43,9 +43,6 @@ export function abrirModal(trigger) {
   }, 10);
 
   // Si es el modal de adjuntar, rellenar campos y cargar tabla
-  //if (modalId === 'modal-adjuntar') {
-  //      _inicializarTablaAdjuntos(trigger, modalId, $modal);
-  //  }
   if (modalId === 'modal-adjuntar') {
         const entidad = trigger.dataset.entidad;
         const id = trigger.dataset.id;
@@ -83,26 +80,82 @@ export function cerrarModal(trigger) {
 }
 
 /** Rellena el formulario de edición con datos AJAX */
-export function rellenarModal(elem, entidad, campos, camposOcultos) {
+export function rellenarModal(elem, entidad, camposVisibles, camposOcultos) {
   const id  = elem.data('id');
   $.get(`/${entidad}/${id}/json`, data => {
-    $('#modal-id').val(data.id);
-    $('#form-editar').attr('action', `/${entidad}/${data.id}`);
-    campos.forEach(campo => {
-      $(`#editar-${campo}`).val(data[campo] || '');
-    });
-    // Si existen campos ocultos...
-    if (!isEmptyObject(camposOcultos)) {
-      camposOcultos.forEach(campo => {
-        $(`#editar-${campo}`).val(data[campo] || '');
-      });
-    }
+    $('#modal-id').val(data.id.value);
+    $('#form-editar').attr('action', `/${entidad}/${data.id.value}`);
+
+    crearHtmlCamposModal(data, camposVisibles, camposOcultos,'editar');
   });
 }
 
 /** Vacía los inputs del modal de creación */
-export function vaciarModal(campos) {
-  campos.forEach(campo => {
-    $(`#crear-${campo}`).val('');
+export function vaciarModal(entidad, camposVisibles,camposOcultos) {
+
+  $('#modal-id').val('');
+
+  // Creamos la estructura json de la entidad con los campos vacios y con el type correspondiente a cada campo
+  $.get(`/${entidad}/estructura`, data => {
+      console.log('data: ', data);
+      console.log('camposVisibles: ', camposVisibles);
+      console.log('camposOcultos: ', camposOcultos);
+      crearHtmlCamposModal(data, camposVisibles, camposOcultos, 'crear');
   });
+
 }
+
+/**
+ * Genera el HTML de los campos del formulario (visibles y ocultos)
+ * @param {Object} camposData - objeto con estructura { campo: { value, type } }
+ * @param {Array} camposVisibles - lista de campos visibles
+ * @param {Array} camposOcultos - lista de campos ocultos
+ */
+export function crearHtmlCamposModal(camposData, camposVisibles = [], camposOcultos = [], modo='editar') {
+  //const $form = $('#form-editar');
+  const $visibles = $(`#campos-visibles-${modo}`);
+  const $ocultos = $(`#campos-ocultos-${modo}`);
+
+  //$form.find('.campo-generado').remove(); // limpiar campos anteriores
+  $visibles.empty();
+  $ocultos.empty(); // limpiar ocultos
+
+  const renderCampo = (campo, destino) => {
+    const { value, type } = camposData[campo] || { value: '', type: 'text' };
+    let html;
+
+    if (type === 'checkbox') {
+      /* TRUCO: El comportamiento clásico de un checkbox en el formulario es no ser enviado al payload si no esta marcado.
+                Al guardar, en la creación de nuevo registro, da error en la validación si no envia los checkbox no marcados.
+                Por eso añado un input hidden (oculto)
+        - Si el checkbox está desmarcado, el navegador no envía el checkbox, pero sí envía el hidden → campo=0.
+        - Si el checkbox está marcado, el navegador envía solo el checkbox → campo=1, y ignora el hidden.
+        - Laravel lo recibe como 1 o 0, y con nullable|boolean en la validación, todo funciona.
+      */
+      html = `
+        <div class="campo-generado mb-3">
+          <!-- Este hidden garantiza que el campo se envíe como 0 si el checkbox está desmarcado -->
+          <input type="hidden" name="${campo}" value="0">
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" id="${modo}-${campo}" name="${campo}" value="1" ${value ? 'checked' : ''}>
+            <span>${campo}</span>
+          </label>
+        </div>
+      `;
+    } else {
+      html = `
+        <div class="campo-generado mb-3">
+          <label for="${modo}-${campo}" class="block font-medium mb-1">${campo}</label>
+          <input type="${type}" id="${modo}-${campo}" name="${campo}" value="${value ?? ''}"
+                 class="w-full p-2 border rounded" placeholder="${campo}">
+        </div>
+      `;
+    }
+
+    destino.append(html);
+  };
+
+  camposVisibles.forEach(campo => renderCampo(campo, $visibles));
+  camposOcultos.forEach(campo => renderCampo(campo, $ocultos));
+}
+
