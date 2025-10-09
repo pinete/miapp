@@ -30,10 +30,12 @@
     {!! $dataTable->scripts() !!}
 
     <!-- Modal de edición -->
-    @include('entidad.modales.modal-editar', ['entidad' => $entidad, 'campos' => $campos])
+    {{--@include('entidad.modales.modal-editar', ['entidad' => $entidad, 'campos' => $campos]) --}}
+    @include('entidad.modales.modal-editar-crear', ['modo' => 'editar', 'entidad' => $entidad]) 
 
     <!-- Modal de creación -->
-    @include('entidad.modales.modal-crear', ['entidad' => $entidad, 'campos'=>$campos, 'storeRoute' => $storeRoute])
+    {{--@include('entidad.modales.modal-crear', ['entidad' => $entidad, 'campos'=>$campos, 'storeRoute' => $storeRoute])--}}
+    @include('entidad.modales.modal-editar-crear', ['modo' => 'crear', 'entidad' => $entidad, 'storeRoute' => $storeRoute])
 
     <!-- Modal adjuntar -->
     @include('entidad.modales.modal-adjuntos', ['entidad' => 'adjuntos'])
@@ -46,9 +48,9 @@
         const tablaId = "#{{ $tableId }}";
         const tabla = $(tablaId).DataTable();
         const camposVisibles = @json($campos);
-        console.log('campos: ', camposVisibles);
+        //console.log('campos: ', camposVisibles);
         const camposOcultos = @json($camposOcultos); 
-        console.log('camposOcultos: ', camposOcultos);
+        //console.log('camposOcultos: ', camposOcultos);
 
         /***********  Manejo de modales para crear, editar y adjuntar  ***********/
 
@@ -109,7 +111,7 @@
                 success: function (response) {
                     tabla.ajax.reload(); // Recargar la tabla
                     mostrarNotificacion({ mensaje: response.mensaje, tipo: 'success' });
-                    cerrarModal(form.find('button[type="submit"]')[0]);
+                    cerrarModal(form.find('button[type="submit"]')[0]); // Usa el botón submit como trigger
 
                 },
                 error: manejarErrorAJAX
@@ -133,31 +135,18 @@
             const mode = $('#formAdjunto').data('mode');
             const formData = new FormData(this);
 
-            console.log('FormData-token:', formData.get('_token'));
-
-            // Comprobamos los datos del FormData en la consola
-            // for (let pair of formData.entries()) {
-            //     console.log('DATOS: ',pair[0] + ':', pair[1]);
-            // }
-
             $.ajax({
                 url: '/adjuntos',
                 method: 'POST',
-                data: formData, // + '&' + $.param(extraData),
+                data: formData,
                 processData: false,
                 contentType: false,
                 success: function (response) {
-                    //$('#modalAdjuntos').modal('hide');
-                    //Swal.fire('¡Adjunto subido!', '', 'success');
                     mostrarNotificacion({ mensaje: 'Adjunto subido correctamente', tipo: 'success' });
                     cerrarModal(form.find('button[type="submit"]')[0]); // Usa el botón submit como trigger
 
                 },
                 error: manejarErrorAJAX
-                //error: ()=>{
-                //    console.error('Error en la subida:', xhr.responseText);
-                //    Swal.fire('Error al subir el archivo', '', 'error');
-                //}
             });
         });
 
@@ -165,11 +154,9 @@
         $('#{{ $entidad }}-table').on('click', '.btn-expand-row', function () {
             const $btn = $(this);
             const $tr = $btn.closest('tr');
-            //const table = $('#articulos-table').DataTable();
             const table = $('#{{ $entidad }}-table').DataTable();
             const row = table.row($tr);
             const data = row.data();
-            //const ocultos = $('#{{ $entidad }}-table').DataTable().ajax.json().camposOcultos;
             const ocultos = table.ajax.json().camposOcultos;
            
             // Controlamos la acción al pulsar el boton expandir

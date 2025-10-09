@@ -3,7 +3,6 @@
     <div id="modal-editar-fondo" class="modal-fondo absolute inset-0 bg-gray-800 bg-opacity-80 backdrop-blur-sm z-40"></div>
     <!-- Contenido fondo blanco opaco -->
     <div id="modal-editar-content" class="modal-content relative bg-white rounded-lg shadow-lg w-full max-w-md p-6 mx-auto z-50 transition transform scale-95 opacity-0">
-
         <h2 class="text-xl font-bold mb-4">Editar {{ ucfirst($entidad) }}</h2>
         <form id="form-editar" data-mode="editar" method="POST">
             @csrf

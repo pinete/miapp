@@ -1,27 +1,21 @@
 // resources/js/modalFunctions.js
 
-import { data, isEmptyObject } from "jquery";
 import { AdjuntoManager } from './AdjuntoManager.js';
-
 
 /** Abre un modal según el botón disparador */
 export function abrirModal(trigger) {
-    //const btnId    = trigger.id;
     const btnId = trigger.id || trigger.dataset.mode;
-    console.log('btnId:', btnId);
+    //console.log('btnId:', btnId);
     let modalId;
     switch (btnId) {
         case 'btn-crear':
             modalId= 'modal-crear';
-            //console.log('ModalId:', modalId);
             break;
         case 'editar':
             modalId= 'modal-editar';
-            //console.log('ModalId:', modalId);
             break;
         case 'adjuntar':
             modalId= 'modal-adjuntar';
-            //console.log('ModalId:', modalId);
             break;
         default:
             console.error('ID de botón no reconocido:', btnId);
@@ -59,10 +53,9 @@ export function abrirModal(trigger) {
 
 /** Cierra el modal enviado o el modal en cuyo interior está el botón disparador
  * @param {*} trigger - El botón que disparó el cierre o el formulario mismo
-*/
+ */
 export function cerrarModal(trigger) {
     const $trigger = $(trigger);
-    //const $modal   = $(trigger).closest('.fixed');
     // Para que sirva tanto si el trigger es un botón dentro del modal como si es el formulario
     const $modal = $trigger.closest('.fixed').length
         ? $trigger.closest('.fixed') // Si el trigger es un botón dentro del modal
@@ -79,9 +72,11 @@ export function cerrarModal(trigger) {
     setTimeout(() => $modal.addClass('hidden'), 300);
 }
 
+
 /** Rellena el formulario de edición con datos AJAX */
 export function rellenarModal(elem, entidad, camposVisibles, camposOcultos) {
   const id  = elem.data('id');
+  //Capturamos los datos del registro de la entidad que coinciden con id
   $.get(`/${entidad}/${id}/json`, data => {
     $('#modal-id').val(data.id.value);
     $('#form-editar').attr('action', `/${entidad}/${data.id.value}`);
@@ -90,20 +85,21 @@ export function rellenarModal(elem, entidad, camposVisibles, camposOcultos) {
   });
 }
 
+
 /** Vacía los inputs del modal de creación */
 export function vaciarModal(entidad, camposVisibles,camposOcultos) {
 
   $('#modal-id').val('');
 
-  // Creamos la estructura json de la entidad con los campos vacios y con el type correspondiente a cada campo
+  // Creamos la estructura json de un registro de la entidad con los campos vacios y con el type correspondiente a cada campo
   $.get(`/${entidad}/estructura`, data => {
       console.log('data: ', data);
       console.log('camposVisibles: ', camposVisibles);
       console.log('camposOcultos: ', camposOcultos);
       crearHtmlCamposModal(data, camposVisibles, camposOcultos, 'crear');
   });
-
 }
+
 
 /**
  * Genera el HTML de los campos del formulario (visibles y ocultos)
@@ -112,11 +108,9 @@ export function vaciarModal(entidad, camposVisibles,camposOcultos) {
  * @param {Array} camposOcultos - lista de campos ocultos
  */
 export function crearHtmlCamposModal(camposData, camposVisibles = [], camposOcultos = [], modo='editar') {
-  //const $form = $('#form-editar');
   const $visibles = $(`#campos-visibles-${modo}`);
   const $ocultos = $(`#campos-ocultos-${modo}`);
 
-  //$form.find('.campo-generado').remove(); // limpiar campos anteriores
   $visibles.empty();
   $ocultos.empty(); // limpiar ocultos
 
@@ -143,10 +137,11 @@ export function crearHtmlCamposModal(camposData, camposVisibles = [], camposOcul
         </div>
       `;
     } else {
+      //Nota: step="any" me permitirá introducir valores decimales en los campos con type number. Si no, solo va a permitir enteros
       html = `
         <div class="campo-generado mb-3">
           <label for="${modo}-${campo}" class="block font-medium mb-1">${campo}</label>
-          <input type="${type}" id="${modo}-${campo}" name="${campo}" value="${value ?? ''}"
+          <input type="${type}" step="any" id="${modo}-${campo}" name="${campo}" value="${value ?? ''}"
                  class="w-full p-2 border rounded" placeholder="${campo}">
         </div>
       `;
@@ -154,8 +149,17 @@ export function crearHtmlCamposModal(camposData, camposVisibles = [], camposOcul
 
     destino.append(html);
   };
-
+  
+  // Renderizamos campos visibles
   camposVisibles.forEach(campo => renderCampo(campo, $visibles));
-  camposOcultos.forEach(campo => renderCampo(campo, $ocultos));
+
+  // Ocultar o no el contenedor si no hay campos ocultos
+  if (camposOcultos.length === 0) {
+    $ocultos.addClass('hidden'); // o .hide() si se prefiere inline
+  } else {
+    $ocultos.removeClass('hidden'); // mostrar si hay campos
+    camposOcultos.forEach(campo => renderCampo(campo, $ocultos)); //Renderizamos campos ocultos
+  }
+
 }
 

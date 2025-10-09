@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema; // Para capturar el tipo de dato de la ba
 use Illuminate\Support\Str;
 
 
-/*
+/**************************  CREACIÓN DE UNA NUEVA TABLA EN LA BASE DE DATOS  *************************
     NOTA:   1. Para crear una nueva tabla (migración) en laravel:
                 php artisan make:migration create_nombre_tabla --create=nombre_tabla
                 Ejemplo para crear una tabla documentos...
@@ -18,7 +18,7 @@ use Illuminate\Support\Str;
                     OJO: dentro del entorno Docker/Sail o WSL para tu proyecto Laravel sería...
                     ./vendor/bin/sail artisan make:migration create_documentos_tabla --create=documentos_tabla
 
-            2. Definimos la estructura en la migración en la funcion up
+            2. Definimos la estructura de la nueva migración en la funcion up
                 Por ejemplo:
                     public function up()
                     {
@@ -32,16 +32,16 @@ use Illuminate\Support\Str;
                         });
                     }
 
-            3. Dentro del entorno, ejecutamos la migración:
+            3. Ejecutamos la migración:
                 php artisan migrate
                 OJO: dentro del entorno sería...
                 ./vendor/bin/sail php artisan migrate
 
             4. Por último, crear el modelo: ./vendor/bin/sail php artisan make:model Articulo
 
-            NOTA:   Si se necesitan validaciones, incorpora la entidad en el switch case de la
-                    función getValidationRules
-
+            NOTA:   Para editar/modificar y crear se requieren de validaciones. Incorpora la entidad en el switch case de la
+                    función getValidationRules del controlador EntidadController.php y define las reglas de los campos de la 
+                    nueva entidad.
 */
 
 class EntidadController extends Controller
@@ -432,6 +432,7 @@ public function getRegistrosEntidad(string $entidad)
     private function adjuntarA(string $entidad, int $id, \Illuminate\Http\UploadedFile $archivo): \Illuminate\Http\JsonResponse
     {
         $modeloClass = 'App\\Models\\' . $this->getModelClass($entidad);
+        
         // Verificación de existencia del modelo
         if (!class_exists($modeloClass)) {
             \Log::error("Modelo no encontrado para entidad: $entidad");
@@ -484,42 +485,6 @@ public function getRegistrosEntidad(string $entidad)
     /**
      * Obtener nombres y tipos de campos de una entidad sin consultar registros
      */
-    public function estructuraEntidad(string $entidad)
-    {
-        $modelo = $this->getModelClass($entidad);
-        $modelClass = 'App\\Models\\' . $modelo;
-
-        if (!class_exists($modelClass)) {
-            return response()->json(['error' => "Modelo no encontrado: $modelo"], 500);
-        }
-
-        $tabla = (new $modelClass)->getTable();
-        $campos = Schema::getColumnListing($tabla);
-        $casts = (new $modelClass)->getCasts();
-
-        $estructura = [];
-
-        foreach ($campos as $campo) {
-            $tipoBD = Schema::getColumnType($tabla, $campo);
-            $tipoCast = $casts[$campo] ?? null;
-
-            $tipoHTML = match (true) {
-                $tipoCast === 'boolean' => 'checkbox',
-                in_array($tipoBD, ['integer', 'float', 'double', 'decimal']) => 'number',
-                in_array($tipoBD, ['date']) => 'date',
-                in_array($tipoBD, ['datetime', 'timestamp']) => 'datetime-local',
-                default => 'text',
-            };
-
-            $estructura[$campo] = [
-                'value' => null,
-                'type' => $tipoHTML
-            ];
-        }
-
-        return response()->json($estructura);
-    }
-
     public function estructuraJson(string $entidad)
     {
         $modelo = $this->getModelClass($entidad);
