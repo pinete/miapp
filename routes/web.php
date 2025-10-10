@@ -33,5 +33,13 @@ Route::get('/{entidad}/estructura', [EntidadController::class, 'estructuraJson']
 // registros sin control de la aplicación (son registros vinculados a otras entidades)
 Route::post('/adjuntos', [EntidadController::class, 'adjuntarArchivo'])->name('entidad.adjuntar'); // Adjuntar archivo a un registro
 // Route::get('/adjuntos/{id}', [EntidadController::class, 'verAdjunto']);
+Route::get('/configuracion/entidades', function () { // Para capturar el mapa de entidades->modelos existentes
+    return response()->json([
+        'entidades' => EntidadController::getEntidadesModelos()
+    ]);
+});
+Route::get('/configuracion/entidades', function () { // Para capturar el array de entidades existentes
+    return response()->json(EntidadController::getEntidadesModelos());
+});
 
 

@@ -17,6 +17,7 @@
         <button
             id="btn-crear"
             data-mode="crear"
+            data-entidad={{$entidad}}
             title="Nuevo registro"
             class="btn-crear inline-block px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded hover:bg-green-700 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer"
             data-mode="crear"
@@ -174,7 +175,6 @@
                 $tr.addClass('shown');
             }
         });
-
     });
     </script>
 @endsection

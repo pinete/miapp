@@ -14,7 +14,6 @@ class EntidadDataTable extends DataTable
 {           
     protected string $modelo;
     protected string $entidad;
-    //protected array  $campos;
     protected array  $camposVisibles=[];
     protected array  $camposOcultos=[];
 
@@ -27,43 +26,20 @@ class EntidadDataTable extends DataTable
         $this->camposOcultos = $camposOcultos; // Campos ocultos en la tabla
     }
 
+
     /**
      * Construye el DataTable con formato y acciones.
      */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
-        /*
-        return (new EloquentDataTable($query))
+        $dataTable = (new EloquentDataTable($query))
             ->editColumn('created_at', fn($registro) => Carbon::parse($registro->created_at)->format('d/m/Y'))
             ->editColumn('updated_at', fn($registro) => Carbon::parse($registro->updated_at)->format('d/m/Y'))
-            //Columna de expandir si existen camposOcultos
-            ->addColumn('expandir', function ($row) {
-                return '<button data-id="'.$row->id.'" class="btn-expand-row px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" title="Ver más">🔽</button>';
-            })
-            ->rawColumns(['expandir', 'action'])
-
             ->addColumn('action', function ($row) {
                 return view('entidad.action', [
                     'row' => $row,
-                    'entidad' => $this->entidad, // ← aquí usas la propiedad ya definida
+                    'entidad' => $this->entidad,
                     'camposOcultos' => $this->camposOcultos,
-                ]);
-            //->render();
-            })
-            ->setRowId('id')
-            ->with([
-                'camposVisibles' => $this->camposVisibles,
-                'camposOcultos' => $this->camposOcultos
-            ]);
-            */
-        $dataTable = (new EloquentDataTable($query))
-        ->editColumn('created_at', fn($registro) => Carbon::parse($registro->created_at)->format('d/m/Y'))
-        ->editColumn('updated_at', fn($registro) => Carbon::parse($registro->updated_at)->format('d/m/Y'))
-        ->addColumn('action', function ($row) {
-            return view('entidad.action', [
-                'row' => $row,
-                'entidad' => $this->entidad,
-                'camposOcultos' => $this->camposOcultos,
             ])->render();
         })
         ->setRowId('id')
@@ -84,15 +60,16 @@ class EntidadDataTable extends DataTable
         }
 
         return $dataTable;
-
     }
-/**
+
+
+    /**
      * Columnas del DataTable.
      */
     public function getColumns(): array
     {
         $columnas = [];
-        // Si existen camposOcultos
+        // Si existen camposOcultos muestro botón expandir
         if (!empty($this->camposOcultos)) {
             $columnas[] = Column::computed('expandir')
                 ->exportable(false)
@@ -103,14 +80,14 @@ class EntidadDataTable extends DataTable
         }
         // Resto de columnas
         $columnas[] = Column::make('id');
-
-        // Genero las columnas dinámicamente según los campos visibles y evito usar switch/case
+        // Genero las columnas dinámicamente según los campos visibles
         foreach ($this->camposVisibles as $campo) {
             $columnas[] = Column::make($campo);
         }
-
         $columnas[] = Column::make('created_at')->title('Creado');
         $columnas[] = Column::make('updated_at')->title('Actualizado');
+
+        //Botones en linea de registro (editar/eliminar)
         $columnas[] = Column::computed('action')
             ->exportable(false)
             ->printable(false)
@@ -119,7 +96,6 @@ class EntidadDataTable extends DataTable
 
         return $columnas;
     }
-
 
 
     /**
@@ -159,9 +135,9 @@ class EntidadDataTable extends DataTable
                 ],
                 'lengthMenu' => [ [5, 10, 20, 50, -1], [5, 10, 20, 50, 'Todos'] ],
                 'pageLength' => 10, // valor inicial por defecto
-
             ]);
     }
+
 
   /**
      * Fuente de datos para el DataTable.
@@ -176,6 +152,7 @@ class EntidadDataTable extends DataTable
 
         return (new $modelClass)->newQuery();
     }
+
 
     /**
      * Nombre del archivo exportado.

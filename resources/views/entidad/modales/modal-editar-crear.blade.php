@@ -15,7 +15,13 @@
       {{ ucfirst($modo) }} {{ ucfirst($entidad) }}
     </h2>
 
-    <form id="{{ $formId }}" method="POST" data-mode="{{ $modo }}" action="{{ $modo === 'crear' ? $storeRoute : '' }}">
+    <form 
+      id="{{ $formId }}" 
+      method="POST" 
+      data-mode="{{ $modo }}" 
+      data-entidad={{$entidad}}
+      action="{{ $modo === 'crear' ? $storeRoute : '' }}">
+
       @csrf
 
       <!-- Contenedor para campos visibles -->

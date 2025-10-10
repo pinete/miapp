@@ -46,6 +46,19 @@ use Illuminate\Support\Str;
 
 class EntidadController extends Controller
 {
+    /** Relación de entidades y sus respectivos modelos */
+    public static function getEntidadesModelos(): array
+    {
+        return [
+            'clientes'    => 'Cliente',
+            'proveedores' => 'Proveedor',
+            'articulos'   => 'Articulo',
+            'adjuntos'    => 'Adjunto',
+            //
+        ];
+    }
+
+
     /**
     * Devuelve el nombre (singular) del modelo según la entidad.
     * @param string $entidad (la entidad en plural, por ejemplo, 'clientes').
@@ -54,13 +67,9 @@ class EntidadController extends Controller
     private function getModelClass(string $entidad): string
     {
         //Relación entre entidades y modelos
-        $mapa = [
-            'clientes'   => 'Cliente',
-            'proveedores'=> 'Proveedor',
-            'articulos'  => 'Articulo',
-            'adjuntos'   => 'Adjunto',
-            // Añade aquí tus otras entidades... 'entidad' => 'Modelo',
-        ];
+        
+        $mapa = EntidadController::getEntidadesModelos();
+        
         if (! isset($mapa[$entidad])) {
             abort(404, "Entidad desconocida: $entidad");
         }

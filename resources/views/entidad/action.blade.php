@@ -7,6 +7,7 @@
     <button
         data-id="{{ $row->id }}"
         data-mode="editar"
+        data-entidad={{$entidad}}
         title="Editar"
         class="btn-editar inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded hover:bg-blue-700 active:scale-95 transform transition duration-100 ease-in-out mr-1 cursor-pointer"
     >
@@ -15,6 +16,7 @@
     <button
         data-id="{{ $row->id }}"
         data-mode="eliminar"
+        data-entidad={{$entidad}}
         title="Eliminar"
         class="btn-eliminar inline-block px-3 py-1 text-sm font-semibold text-white bg-red-600 rounded hover:bg-red-700 active:scale-95 transform transition duration-100 ease-in-out mr-1 cursor-pointer"
     >

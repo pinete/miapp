@@ -1,13 +1,15 @@
 // resources/js/modalFunctions.js
 
 import { AdjuntoManager } from './AdjuntoManager.js';
+import { aplicarAnchoModal } from './personalConfig.js';
+
 
 /** Abre un modal según el botón disparador */
 export function abrirModal(trigger) {
-    const btnId = trigger.id || trigger.dataset.mode;
+    const id = trigger.id || trigger.dataset.mode;
     //console.log('btnId:', btnId);
     let modalId;
-    switch (btnId) {
+    switch (id) {
         case 'btn-crear':
             modalId= 'modal-crear';
             break;
@@ -26,6 +28,14 @@ export function abrirModal(trigger) {
   const $modal   = $('#' + modalId);
   const $fondo   = $modal.find('.modal-fondo');
   const $box     = $modal.find('.modal-content');
+
+  // Detectar entidad y aplicar ancho
+  const entidad = trigger.dataset.entidad;
+  const modo = modalId.replace('modal-', ''); // 'crear', 'editar', 'adjuntar'
+  if (entidad) {
+    aplicarAnchoModal(entidad, modo);
+  }
+
 
   // Mostrar el modal con animaciones
   $modal.removeClass('hidden');
@@ -47,12 +57,12 @@ export function abrirModal(trigger) {
             AdjuntoManager.initTable(entidad, id);
         }
     }
-
 }
 
 
-/** Cierra el modal enviado o el modal en cuyo interior está el botón disparador
- * @param {*} trigger - El botón que disparó el cierre o el formulario mismo
+/** 
+ * Cierra el modal enviado o el modal en cuyo interior está el botón disparador
+ * @param {*} trigger - El botón que disparó el cierre o el elemento formulario
  */
 export function cerrarModal(trigger) {
     const $trigger = $(trigger);
@@ -160,6 +170,7 @@ export function crearHtmlCamposModal(camposData, camposVisibles = [], camposOcul
     $ocultos.removeClass('hidden'); // mostrar si hay campos
     camposOcultos.forEach(campo => renderCampo(campo, $ocultos)); //Renderizamos campos ocultos
   }
-
 }
+
+
 
