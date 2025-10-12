@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
 
-
     // Cargar ancho actual al cambiar entidad
     selectEntidad.addEventListener('change', () => {
         const entidad = selectEntidad.value;
@@ -44,6 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         selectAncho.value = anchoActual;
     });
 
+    
     // Guardar configuración
     document.getElementById('form-configuracion').addEventListener('submit', e => {
         e.preventDefault();

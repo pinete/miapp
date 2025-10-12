@@ -36,7 +36,6 @@ export function abrirModal(trigger) {
     aplicarAnchoModal(entidad, modo);
   }
 
-
   // Mostrar el modal con animaciones
   $modal.removeClass('hidden');
   setTimeout(() => {
@@ -112,7 +111,7 @@ export function vaciarModal(entidad, camposVisibles,camposOcultos) {
 
 
 /**
- * Genera el HTML de los campos del formulario (visibles y ocultos)
+ * Genera el HTML de los campos del formulario modal (campos visibles y ocultos)
  * @param {Object} camposData - objeto con estructura { campo: { value, type } }
  * @param {Array} camposVisibles - lista de campos visibles
  * @param {Array} camposOcultos - lista de campos ocultos

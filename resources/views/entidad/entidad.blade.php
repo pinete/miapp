@@ -154,8 +154,8 @@
         // Listener de botón expandir
         $('#{{ $entidad }}-table').on('click', '.btn-expand-row', function () {
             const $btn = $(this);
-            const $tr = $btn.closest('tr');
-            const table = $('#{{ $entidad }}-table').DataTable();
+            const $tr = $btn.closest('tr'); // busca el elemento <tr> más cercano hacia arriba en el árbol DOM, partiendo desde el elemento actual.
+            const table = $('#{{ $entidad }}-table').DataTable(); // Inicializa o recupera la instancia de DataTables asociada al elemento HTML con ID {{ $entidad }}-table.
             const row = table.row($tr);
             const data = row.data();
             const ocultos = table.ajax.json().camposOcultos;
@@ -165,12 +165,30 @@
                 row.child.hide();
                 $tr.removeClass('shown');
             } else { // Si no muestra los datos ocultos -> Mostrar los datos
+                
+                /* 
+                // Versión anterior mas simple
                 let html = '<table class="w-full text-sm text-left">';
                 ocultos.forEach(campo => {
                     html += `<tr><td class="font-semibold pr-4">${campo}</td><td>${data[campo] ?? '<i class="text-gray-400">Sin valor</i>'}</td></tr>`;
                 });
                 html += '</table>';
+                */
 
+                // Versión con presentación de datos mejorada
+                let html = `<div class="bg-gray-100 p-4 rounded-md border border-gray-300 grid grid-cols-2 gap-x-6 gap-y-2 text-sm">`;
+
+                ocultos.forEach(campo => {
+                const valor = data[campo] ?? '<i class="text-gray-400">Sin valor</i>';
+                html += `
+                    <div class="font-semibold text-gray-700">${campo}</div>
+                    <div class="text-gray-900">${valor}</div>
+                `;
+                });
+
+                html += '</div>';
+                
+                // Incorporamos y mostramos el html al DOM
                 row.child(html).show();
                 $tr.addClass('shown');
             }
