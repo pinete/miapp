@@ -12,9 +12,10 @@ Route::get('/', function () {
 
 // Rutas para la gestión de Adjuntos de una entidad
 Route::get('/adjuntos', [AdjuntoController::class, 'filtrados'])->name('adjuntos.filtrados');
+Route::get('/adjuntos/{id}', [EntidadController::class, 'verAdjunto']); // Muestra el archivo adjunto en el navegador
 Route::delete('/adjuntos/{id}', [AdjuntoController::class, 'destroy'])->name('adjuntos.destroy');
-Route::get('/adjuntos/{id}/descargar', [AdjuntoController::class, 'descargar'])->name('adjuntos.descargar');
-
+Route::get('/adjuntos/{id}/descargar', [AdjuntoController::class, 'descargar'])->name('adjuntos.descargar'); // Descarga el archivo adjunto en Download
+Route::post('/adjuntos', [EntidadController::class, 'adjuntarArchivo'])->name('entidad.adjuntar'); // Adjuntar archivo a un registro
 
 // Rutas para la gestión dinámica de entidades
 Route::get('/{entidad}/data', [EntidadController::class, 'getRegistrosEntidad']); // Obtener datos vía AJAX para DataTables
@@ -31,8 +32,7 @@ Route::get('/{entidad}/estructura', [EntidadController::class, 'estructuraJson']
 
 // Omitimos estas rutas para evitar entrar "a saco" en la tabla Adjuntos y poder borrar, modificar y crear 
 // registros sin control de la aplicación (son registros vinculados a otras entidades)
-Route::post('/adjuntos', [EntidadController::class, 'adjuntarArchivo'])->name('entidad.adjuntar'); // Adjuntar archivo a un registro
-// Route::get('/adjuntos/{id}', [EntidadController::class, 'verAdjunto']);
+
 Route::get('/configuracion/entidades', function () { // Para capturar el mapa de entidades->modelos existentes
     return response()->json([
         'entidades' => EntidadController::getEntidadesModelos()

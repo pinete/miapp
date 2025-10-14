@@ -130,10 +130,10 @@ export function crearHtmlCamposModal(camposData, camposVisibles = [], camposOcul
     if (type === 'checkbox') {
       /* TRUCO: El comportamiento clásico de un checkbox en el formulario es no ser enviado al payload si no esta marcado.
                 Al guardar, en la creación de nuevo registro, da error en la validación si no envia los checkbox no marcados.
-                Por eso añado un input hidden (oculto)
-        - Si el checkbox está desmarcado, el navegador no envía el checkbox, pero sí envía el hidden → campo=0.
-        - Si el checkbox está marcado, el navegador envía solo el checkbox → campo=1, y ignora el hidden.
-        - Laravel lo recibe como 1 o 0, y con nullable|boolean en la validación, todo funciona.
+                Por eso añado un input hidden (oculto) que se comportará de la sifuiente forma:
+                  - Si el checkbox está desmarcado, el navegador no envía el checkbox, pero sí envía el hidden → campo=0.
+                  - Si el checkbox está marcado, el navegador envía solo el checkbox → campo=1, y ignora el hidden.
+                  - Laravel lo recibe como 1 o 0, y con 'nullable|boolean' en la validación, todo funciona.
       */
       html = `
         <div class="campo-generado mb-3">

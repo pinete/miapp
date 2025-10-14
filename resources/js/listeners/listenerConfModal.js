@@ -4,7 +4,7 @@ import {
   obtenerConfModal,
   obtenerEntidadesModelos,
   obtenerEntidades,
-} from './plugins/personalConfig.js';
+} from '../plugins/personalConfig.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     const selectAncho = document.getElementById('select-ancho');
