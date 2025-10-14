@@ -19,10 +19,15 @@
             data-mode="crear"
             data-entidad={{$entidad}}
             title="Nuevo registro"
-            class="btn-crear inline-block px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded hover:bg-green-700 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer"
+            class="btn-crear group relative inline-block px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded hover:bg-green-700 active:scale-95 transform transition duration-100 ease-in-out mr-2 cursor-pointer"
             data-mode="crear"
         >
             <img src="/icons/CRUD/Agregar-Icono.png" alt="Agregar" class="w-6 h-6 inline">
+            {{--    Añadimos la clase 'group' al botón y usamos <span> para mostrar información complementaria 
+                    de la acción nuevo registro  al pasar el cursor sobre el botón --}}
+            <span class="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition whitespace-nowrap z-50">
+                Crear nuevo registro
+            </span>
         </button>
     </div>
 
