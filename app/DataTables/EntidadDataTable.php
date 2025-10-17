@@ -51,7 +51,18 @@ class EntidadDataTable extends DataTable
         // Solo añadir columna expandir si hay campos ocultos
         if (!empty($this->camposOcultos)) {
             $dataTable->addColumn('expandir', function ($row) {
-                return '<button data-id="'.$row->id.'" class="btn-expand-row px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" title="Ver más">🔽</button>';
+                return '
+                    <button 
+                        data-id="'.$row->id.'" 
+                        class="btn-expand-row group relative px-2 py-1 bg-gray-200 rounded hover:bg-gray-300" 
+                        title="Ver más"
+                    >
+                        🔽
+                        <span 
+                            class="absolute bottom-full pointer-events-none left-1/2 transform -translate-x-1/2 -translate-y-1 bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-50 opacity-0 group-hover:opacity-100 transition">
+                                Expandir registro
+                            </span>
+                    </button>';
             });
 
             $dataTable->rawColumns(['expandir', 'action']);

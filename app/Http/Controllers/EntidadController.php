@@ -46,15 +46,20 @@ use Illuminate\Support\Str;
 
 class EntidadController extends Controller
 {
-    /** Relación de entidades y sus respectivos modelos */
+    /** Relación de entidades con sus respectivos modelos */
     public static function getEntidadesModelos(): array
     {
+        /* 
+        Añade la relación de cada nueva tabla (entidad) con el nombre de su modelo... 
+        NOTA: Los nombres de los modelos siempre empiezan en mayusculas (Capitalización inicial)
+        */
         return [
+            // Tabla      =>  Modelo
             'clientes'    => 'Cliente',
             'proveedores' => 'Proveedor',
             'articulos'   => 'Articulo',
             'adjuntos'    => 'Adjunto',
-            //
+            // Añade aqui la nueva relación tabla/modelo
         ];
     }
 
